@@ -23,7 +23,8 @@
     "types": ["jest", "node"],
     "paths": {
       "@common/*": ["./src/common/*"],
-      "@modules/*": ["./src/modules/*"]
+      "@modules/*": ["./src/modules/*"],
+      "@generated/*": ["./generated/*"]
     }
   }
 }
