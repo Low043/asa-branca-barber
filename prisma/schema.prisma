@@ -9,4 +9,61 @@ datasource db {
 
 model User {
   phone String @id @db.VarChar(16)
+
+  meetings Meeting[]
+}
+
+model Service {
+  id              String        @id @default(uuid())
+  name            String        @db.VarChar(32)
+  price           Decimal?
+  durationMinutes Int
+
+  meetings    Meeting[]
+}
+
+model Meeting {
+  id         String            @id @default(uuid())
+  date       DateTime
+  clientName String
+  status     MeetingStatus @default(SCHEDULED)
+
+  user       User              @relation(fields: [userPhone], references: [phone])
+  userPhone  String
+
+  service    Service           @relation(fields: [serviceId], references: [id])
+  serviceId  String
+
+  @@unique([date]) // Garante que não haja dois agendamentos no mesmo horário
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+model WeeklySchedule {
+  id         Int     @id @default(autoincrement())
+  dayOfWeek  Int     // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+  isActive   Boolean @default(true) // Ele trabalha nesse dia?
+  
+  // Horários no formato "HH:mm"
+  openTime   String?
+  closeTime  String?
+  
+  lunchStart String?
+  lunchEnd   String?
+  
+  @@unique([dayOfWeek]) // Só pode ter uma regra por dia da semana
+}
+
+model ScheduleException {
+  id          String   @id @default(uuid())
+  date        DateTime @unique // O dia específico (ex: 2026-04-21)
+  isActive    Boolean  @default(false)
+  
+  // Horário diferente para caso isActive seja true
+  openTime    String?
+  closeTime   String?
 }
