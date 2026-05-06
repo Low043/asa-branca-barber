@@ -19,6 +19,7 @@ model Service {
   name            String        @db.VarChar(32)
   priceCents      Int
   durationMinutes Int
+  active          Boolean       @default(true)
 
   meetings    Meeting[]
 }
