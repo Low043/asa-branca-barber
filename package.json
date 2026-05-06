@@ -1,0 +1,23 @@
+{
+  "name": "asa-branca-barber",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Low043/asa-branca-barber#readme",
+  "bugs": {
+    "url": "https://github.com/Low043/asa-branca-barber/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Low043/asa-branca-barber.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
