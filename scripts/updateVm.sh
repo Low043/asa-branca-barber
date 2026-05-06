@@ -9,6 +9,7 @@ FILES_TO_SEND=(
   "package.json"
   "pnpm-lock.yaml"
   "prisma"
+  "prisma.config.js"
   ".env"
 )
 

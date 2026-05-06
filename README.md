@@ -71,11 +71,11 @@ VM commands:
 ```bash
 pnpm install --prod
 
-pnpm exec prisma generate
+npx prisma generate
 
-pnpm exec prisma migrate deploy
+npx prisma migrate deploy
 
-pm2 reload barber --update-env || pm2 start dist/main.js --name "barber"
+pm2 reload barber --update-env || pm2 start dist/src/main.js --name "barber"
 
 # Save process list in case vm restarts
 # pm2 startup command required (one time exec)
