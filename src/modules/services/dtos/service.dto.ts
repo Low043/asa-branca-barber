@@ -5,12 +5,12 @@ import { z } from 'zod';
 const ServiceSchema = z.object({
   id: z.uuid('ID do serviço inválido'),
   name: z.string().min(1, 'O nome do serviço é obrigatório'),
-  priceCents: z.number().positive('O preço deve ser um número positivo'),
-  durationMinutes: z.number().positive('A duração deve ser um número positivo'),
-  active: z.boolean().default(true),
+  priceCents: z.int().positive('O preço deve ser um número positivo'),
+  durationMinutes: z.int().positive('A duração deve ser um número positivo'),
+  isActive: z.boolean().default(true),
 }) satisfies z.ZodType<Service>;
 
-const CreateServiceSchema = ServiceSchema.omit({ id: true, active: true });
+const CreateServiceSchema = ServiceSchema.omit({ id: true, isActive: true });
 
 export class CreateServiceDto extends createZodDto(CreateServiceSchema) {}
 

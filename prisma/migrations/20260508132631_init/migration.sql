@@ -2,11 +2,19 @@
 CREATE TYPE "MeetingStatus" AS ENUM ('SCHEDULED', 'CANCELLED', 'COMPLETED');
 
 -- CreateTable
+CREATE TABLE "User" (
+    "phone" VARCHAR(16) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("phone")
+);
+
+-- CreateTable
 CREATE TABLE "Service" (
     "id" TEXT NOT NULL,
     "name" VARCHAR(32) NOT NULL,
-    "price" DECIMAL(65,30),
+    "priceCents" INTEGER NOT NULL,
     "durationMinutes" INTEGER NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Service_pkey" PRIMARY KEY ("id")
 );
@@ -24,34 +32,31 @@ CREATE TABLE "Meeting" (
 );
 
 -- CreateTable
-CREATE TABLE "WeeklySchedule" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE "Schedule" (
     "dayOfWeek" INTEGER NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "openTime" TEXT,
-    "closeTime" TEXT,
-    "lunchStart" TEXT,
-    "lunchEnd" TEXT,
+    "openTime" TEXT NOT NULL,
+    "closeTime" TEXT NOT NULL,
+    "lunchStart" TEXT NOT NULL,
+    "lunchEnd" TEXT NOT NULL,
 
-    CONSTRAINT "WeeklySchedule_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Schedule_pkey" PRIMARY KEY ("dayOfWeek")
 );
 
 -- CreateTable
 CREATE TABLE "ScheduleException" (
     "id" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT false,
-    "openTime" TEXT,
-    "closeTime" TEXT,
+    "description" VARCHAR(48) NOT NULL,
+    "openTime" TEXT NOT NULL,
+    "closeTime" TEXT NOT NULL,
+    "lunchStart" TEXT NOT NULL,
+    "lunchEnd" TEXT NOT NULL,
 
     CONSTRAINT "ScheduleException_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Meeting_date_key" ON "Meeting"("date");
-
--- CreateIndex
-CREATE UNIQUE INDEX "WeeklySchedule_dayOfWeek_key" ON "WeeklySchedule"("dayOfWeek");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ScheduleException_date_key" ON "ScheduleException"("date");

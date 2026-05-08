@@ -7,7 +7,7 @@ export class ServicesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getActives() {
-    return await this.prismaService.service.findMany({ where: { active: true } });
+    return await this.prismaService.service.findMany({ where: { isActive: true } });
   }
 
   async create(dto: CreateServiceDto) {
@@ -21,7 +21,7 @@ export class ServicesService {
   async delete(id: string) {
     return await this.prismaService.service.update({
       where: { id },
-      data: { active: false },
+      data: { isActive: false },
     });
   }
 }

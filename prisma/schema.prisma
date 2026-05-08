@@ -19,7 +19,7 @@ model Service {
   name            String        @db.VarChar(32)
   priceCents      Int
   durationMinutes Int
-  active          Boolean       @default(true)
+  isActive        Boolean       @default(true)
 
   meetings    Meeting[]
 }
@@ -28,7 +28,7 @@ model Meeting {
   id         String            @id @default(uuid())
   date       DateTime
   clientName String
-  status     MeetingStatus @default(SCHEDULED)
+  status     MeetingStatus     @default(SCHEDULED)
 
   user       User              @relation(fields: [userPhone], references: [phone])
   userPhone  String
@@ -45,27 +45,25 @@ enum MeetingStatus {
   COMPLETED
 }
 
-model WeeklySchedule {
-  id         Int     @id @default(autoincrement())
-  dayOfWeek  Int     // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
-  isActive   Boolean @default(true) // Ele trabalha nesse dia?
+model Schedule {
+  dayOfWeek  Int     @id // 0 = Domingo, 1 = Segunda...
   
   // Horários no formato "HH:mm"
-  openTime   String?
-  closeTime  String?
+  openTime   String
+  closeTime  String
   
-  lunchStart String?
-  lunchEnd   String?
-  
-  @@unique([dayOfWeek]) // Só pode ter uma regra por dia da semana
+  lunchStart String
+  lunchEnd   String
 }
 
 model ScheduleException {
   id          String   @id @default(uuid())
   date        DateTime @unique // O dia específico (ex: 2026-04-21)
-  isActive    Boolean  @default(false)
+  description String   @db.VarChar(48)
   
-  // Horário diferente para caso isActive seja true
-  openTime    String?
-  closeTime   String?
+  openTime    String
+  closeTime   String
+
+  lunchStart  String
+  lunchEnd    String
 }
