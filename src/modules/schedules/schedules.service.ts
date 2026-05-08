@@ -17,7 +17,9 @@ export class SchedulesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getAll() {
-    return await this.prismaService.schedule.findMany();
+    return await this.prismaService.schedule.findMany({
+      orderBy: { dayOfWeek: 'asc' },
+    });
   }
 
   async getAvailablesByDate(date: Date): Promise<string[]> {

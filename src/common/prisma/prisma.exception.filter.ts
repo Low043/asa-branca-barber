@@ -13,11 +13,16 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
     let message = 'Erro interno no banco de dados';
     let status = 500;
 
+    const modelName = exception.meta?.modelName || 'Registro';
     switch (exception.code) {
       case 'P2025':
-        const modelName = exception.meta?.modelName || 'Registro';
         message = `${modelName} não encontrado para realizar a operação.`;
         status = 404;
+        break;
+      
+      case 'P2002':
+        message = `Valor duplicado para ${modelName}.`;
+        status = 400;
         break;
 
       default:

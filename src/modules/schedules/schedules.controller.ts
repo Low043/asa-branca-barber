@@ -1,17 +1,40 @@
-import { Controller, HttpException, Body, Param, Get, Put } from '@nestjs/common';
-import { UpdateScheduleDto } from './dtos/schedule.dto';
+import { Controller, HttpException, Body, Param, Get, Post, Put } from '@nestjs/common';
+import { ScheduleExceptionsService } from './schedule-exceptions.service';
 import { SchedulesService } from './schedules.service';
 import { z } from 'zod';
+import {
+  UpdateScheduleDto,
+  CreateScheduleExcptDto,
+  UpdateScheduleExcptDto,
+} from './dtos/schedule.dto';
 
 // Não existem operações de criar/apagar pois as regras de horário são fixas (7 dias da semana)
 
 @Controller('/schedules')
 export class SchedulesController {
-  constructor(private readonly schedules: SchedulesService) {}
+  constructor(
+    private readonly schedules: SchedulesService,
+    private readonly scheduleExceptions: ScheduleExceptionsService,
+  ) {}
 
   @Get()
   async getAll() {
     return await this.schedules.getAll();
+  }
+
+  @Get('/exceptions')
+  async getAllExceptions() {
+    return await this.scheduleExceptions.getAll();
+  }
+
+  @Post('/exceptions')
+  async createException(@Body() dto: CreateScheduleExcptDto) {
+    return await this.scheduleExceptions.create(dto);
+  }
+
+  @Put('/exceptions/:id')
+  async updateException(@Param('id') id: string, @Body() dto: UpdateScheduleExcptDto) {
+    return await this.scheduleExceptions.update(id, dto);
   }
 
   @Get(':date')

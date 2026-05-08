@@ -1,4 +1,4 @@
-import type { Schedule } from '@generated/prisma/client';
+import type { Schedule, ScheduleException } from '@generated/prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
@@ -17,3 +17,15 @@ const ScheduleSchema = z.object({
 const UpdateScheduleSchema = ScheduleSchema.omit({ dayOfWeek: true }).partial();
 
 export class UpdateScheduleDto extends createZodDto(UpdateScheduleSchema) {}
+
+const ExcptScheduleSchema = ScheduleSchema.omit({ dayOfWeek: true }).extend({
+  id: z.string(),
+  date: z.coerce.date(),
+  description: z.string().max(48, 'A descrição deve ter no máximo 48 caracteres'),
+}) satisfies z.ZodType<ScheduleException>;
+
+const CreateExcptScheduleSchema = ExcptScheduleSchema.omit({ id: true });
+export class CreateScheduleExcptDto extends createZodDto(CreateExcptScheduleSchema) {}
+
+const UpdateExcptScheduleSchema = ExcptScheduleSchema.partial();
+export class UpdateScheduleExcptDto extends createZodDto(UpdateExcptScheduleSchema) {}
