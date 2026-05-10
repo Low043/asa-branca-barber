@@ -17,7 +17,7 @@ export class PrismaConfig {
       if (url.protocol !== 'postgresql:') {
         throw new Error('DATABASE_URL deve ser uma URL PostgreSQL');
       }
-    } catch (error) {
+    } catch {
       throw new Error('DATABASE_URL invalida');
     }
 

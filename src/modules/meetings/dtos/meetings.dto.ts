@@ -1,4 +1,4 @@
-import { Meeting, MeetingStatus, Service } from '@generated/prisma/client';
+import { Meeting, MeetingStatus } from '@generated/prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
