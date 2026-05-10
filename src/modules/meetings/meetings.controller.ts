@@ -11,6 +11,11 @@ export class MeetingsController {
     return await this.meetings.getActives();
   }
 
+  @Get(':phone')
+  async getMeetingsByUser(@Param('phone') phone: string) {
+    return await this.meetings.getByUser(phone);
+  }
+
   @Post()
   async createMeeting(@Body() dto: CreateMeetingDto) {
     return await this.meetings.create(dto);

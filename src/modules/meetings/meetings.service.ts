@@ -14,6 +14,16 @@ export class MeetingsService {
     });
   }
 
+  async getByUser(phone: string) {
+    return await this.prismaService.meeting.findMany({
+      where: {
+        userPhone: phone,
+        status: MeetingStatus.SCHEDULED,
+        date: { gte: getLocalDateTime() },
+      },
+    });
+  }
+
   async create(dto: CreateMeetingDto) {
     await this.prismaService.user.createMany({
       data: [{ phone: dto.userPhone }],
