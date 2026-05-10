@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { MeetingStatus } from '@generated/prisma/enums';
 import { CreateMeetingDto } from './dtos/meetings.dto';
+import { getLocalDateTime } from '../../utils/scheduleTime.util';
 
 @Injectable()
 export class MeetingsService {
@@ -9,7 +10,7 @@ export class MeetingsService {
 
   async getActives() {
     return await this.prismaService.meeting.findMany({
-      where: { status: MeetingStatus.SCHEDULED, date: { gte: new Date() } },
+      where: { status: MeetingStatus.SCHEDULED, date: { gte: getLocalDateTime() } },
     });
   }
 

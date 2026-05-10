@@ -1,4 +1,4 @@
-import type { Schedule, ScheduleException } from '@generated/prisma/client';
+import { Schedule, ScheduleException, MeetingStatus } from '@generated/prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { UpdateScheduleDto } from './dtos/schedule.dto';
@@ -7,6 +7,7 @@ import {
   scheduleToMinutes,
   minutesToSchedule,
   dateToMinutes,
+  getLocalDateTime,
 } from '../../utils/scheduleTime.util';
 
 type ScheduleOrException = Schedule | ScheduleException | null;
@@ -23,7 +24,11 @@ export class SchedulesService {
   }
 
   async getAvailablesByDate(date: Date): Promise<string[]> {
+    const localDateTime = getLocalDateTime();
+    const localDate = dateWithoutTime(localDateTime);
     date = dateWithoutTime(date);
+
+    if (date.getTime() < localDate.getTime()) return []; // Data no passado
 
     // Procura pelo horário regular do dia da semana
     let schedule: ScheduleOrException = await this.prismaService.schedule.findFirst({
@@ -41,9 +46,14 @@ export class SchedulesService {
 
     // Busca por horários já reservados nesse dia
     const meetings = await this.prismaService.meeting.findMany({
-      where: { date: { gte: date, lt: new Date(date.getTime() + 24 * 60 * 60 * 1000) } },
+      where: {
+        date: { gte: date, lt: new Date(date.getTime() + 24 * 60 * 60 * 1000) },
+        status: MeetingStatus.SCHEDULED,
+      },
     });
 
+    const isToday = date.getTime() === localDate.getTime();
+    const timePassed = isToday ? dateToMinutes(localDateTime) : -1;
     const bookedTimes = meetings.map((m) => dateToMinutes(m.date));
     const openTime = scheduleToMinutes(schedule.openTime);
     const closeTime = scheduleToMinutes(schedule.closeTime);
@@ -53,6 +63,7 @@ export class SchedulesService {
     // Calcula todos os horários disponíveis no dia
     const availableTimes: string[] = [];
     for (let time = openTime; time < closeTime; time += MEETING_DURATION) {
+      if (timePassed > time) continue;
       if (time >= lunchStart && time < lunchEnd) continue;
       if (bookedTimes.includes(time)) continue;
 

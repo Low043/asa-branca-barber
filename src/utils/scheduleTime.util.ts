@@ -16,3 +16,8 @@ export function dateToMinutes(date: Date): number {
 export function dateWithoutTime(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
+
+export function getLocalDateTime() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60 * 1000);
+}
