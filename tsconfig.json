@@ -24,7 +24,7 @@
     "paths": {
       "@common/*": ["./src/common/*"],
       "@modules/*": ["./src/modules/*"],
-      "@generated/*": ["./generated/*"]
+      "@generated/*": ["./src/generated/*"]
     }
   }
 }
