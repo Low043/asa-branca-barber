@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/apps/api",
+    "baseUrl": "../../",
+    "paths": {
+      "@common/*": ["apps/api/src/common/*"],
+      "@modules/*": ["apps/api/src/modules/*"],
+      "@generated/*": ["packages/db/generated/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

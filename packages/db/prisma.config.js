@@ -1,7 +1,13 @@
 import { defineConfig } from 'prisma/config';
 import dotenv from 'dotenv';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-dotenv.config({ path: ['.env.local', '.env'] });
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+dotenv.config({
+  path: [resolve(__dirname, '../../.env.local'), resolve(__dirname, '../../.env')],
+});
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

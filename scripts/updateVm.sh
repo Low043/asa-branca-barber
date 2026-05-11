@@ -8,8 +8,10 @@ FILES_TO_SEND=(
   "dist"
   "package.json"
   "pnpm-lock.yaml"
-  "prisma"
-  "prisma.config.js"
+  "pnpm-workspace.yaml"
+  "packages/db/package.json"
+  "packages/db/prisma"
+  "packages/db/prisma.config.js"
   ".env"
 )
 
