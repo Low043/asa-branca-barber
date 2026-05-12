@@ -61,6 +61,8 @@ $ pnpm run test:cov
 
 Local commands:
 ```bash
+pnpm prisma generate
+
 pnpm run build
 
 # Send files to VM
@@ -71,9 +73,9 @@ VM commands:
 ```bash
 pnpm install --prod
 
-pnpm prisma migrate deploy
+npx prisma migrate deploy
 
-pm2 reload barber --update-env || pm2 start dist/apps/api/main.js --name "barber"
+pm2 reload barber --update-env || pm2 start main.js --name "barber"
 
 # Save process list in case vm restarts
 # pm2 startup command required (one time exec)
