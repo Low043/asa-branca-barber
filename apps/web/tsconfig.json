@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@generated/*": ["../../packages/db/generated/*"]
     }
   },
   "include": [
