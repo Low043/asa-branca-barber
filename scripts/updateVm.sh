@@ -13,6 +13,7 @@ FILES_TO_SEND=(
   "./packages/db/package.json"
   "./packages/db/prisma"
   "./packages/db/prisma.config.js"
+  "./packages/db/prisma-cli-wrapper.js"
   "./.env"
 )
 

@@ -67,15 +67,11 @@ pnpm run build
 ./scripts/updateVm.sh
 ```
 
-Metas:
-- CLI Wrapper do prisma com bin no package.json
-- Melhorar scripts npm
-
 VM commands:
 ```bash
 pnpm install --prod
 
-pnpm exec prisma migrate deploy --config packages/db/prisma.config.js
+pnpm prisma migrate deploy
 
 pm2 reload barber --update-env || pm2 start dist/apps/api/main.js --name "barber"
 

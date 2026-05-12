@@ -6,8 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prisma:generate": "prisma generate --config packages/db/prisma.config.js",
-    "prisma:migrate:deploy": "prisma migrate deploy --config packages/db/prisma.config.js",
     "build:api": "nest build api",
     "build:db:generated": "tsc -p packages/db/tsconfig.generated.json",
     "start:dev": "pnpm run prisma:generate && pnpm run build:db:generated && nest start api --watch",
@@ -17,7 +15,8 @@
     "start:prod": "node dist/apps/api/main.js",
     "test": "jest",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./apps/api/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/api/test/jest-e2e.json",
+    "prisma": "node packages/db/prisma-cli-wrapper.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
