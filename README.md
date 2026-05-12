@@ -67,11 +67,13 @@ pnpm run build
 ./scripts/updateVm.sh
 ```
 
+Metas:
+- CLI Wrapper do prisma com bin no package.json
+- Melhorar scripts npm
+
 VM commands:
 ```bash
 pnpm install --prod
-
-pnpm exec prisma generate --config packages/db/prisma.config.js
 
 pnpm exec prisma migrate deploy --config packages/db/prisma.config.js
 
