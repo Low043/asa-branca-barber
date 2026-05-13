@@ -1,5 +1,3 @@
-export const revalidate = 60;
-
 export interface Schedule {
   dayOfWeek: number;
   openTime: string;
@@ -9,10 +7,13 @@ export interface Schedule {
 }
 
 export async function fetchSchedules(): Promise<Schedule[]> {
-  const apiBaseUrl = process.env.API_BASE_URL!;
+  const apiBaseUrl = process.env.API_BASE_URL;
 
-  const data = await fetch(`${apiBaseUrl}/schedules`);
-  if (!data.ok) return [];
+  const data = await fetch(`${apiBaseUrl}/schedules`, {
+    next: { revalidate: 60 },
+  }).catch(() => null);
+
+  if (!data || !data.ok) return [];
 
   return data.json();
 }
