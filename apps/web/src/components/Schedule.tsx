@@ -1,4 +1,10 @@
-import type { Schedule } from '@generated/prisma/client';
+export interface Schedule {
+  dayOfWeek: number;
+  openTime: string;
+  closeTime: string;
+  lunchStart: string;
+  lunchEnd: string;
+}
 
 export async function fetchSchedules(): Promise<Schedule[]> {
   const apiBaseUrl = process.env.API_BASE_URL!;
