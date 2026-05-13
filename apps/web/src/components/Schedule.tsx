@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 export interface Schedule {
   dayOfWeek: number;
   openTime: string;

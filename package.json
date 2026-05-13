@@ -9,7 +9,7 @@
     "start:dev": "nest start api --watch",
     "build": "nest build api",
     "format": "prettier --write \"apps/**/*.ts\" \"packages/**/*.ts\"",
-    "lint": "eslint \"{apps,packages,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{apps/api,packages,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:cov": "jest --coverage",
     "test:e2e": "jest --config ./apps/api/test/jest-e2e.json",
