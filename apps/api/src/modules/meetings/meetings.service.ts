@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { MeetingStatus } from '@generated/prisma/enums';
 import { CreateMeetingDto } from './dtos/meetings.dto';
@@ -25,6 +25,18 @@ export class MeetingsService {
   }
 
   async create(dto: CreateMeetingDto) {
+    const existingMeeting = await this.prismaService.meeting.findFirst({
+      where: {
+        date: dto.date,
+        status: MeetingStatus.SCHEDULED,
+      },
+      select: { id: true },
+    });
+
+    if (existingMeeting) {
+      throw new ConflictException('Horário indisponível para agendamento');
+    }
+
     await this.prismaService.user.createMany({
       data: [{ phone: dto.userPhone }],
       skipDuplicates: true,

@@ -35,8 +35,6 @@ model Meeting {
 
   service    Service           @relation(fields: [serviceId], references: [id])
   serviceId  String
-
-  @@unique([date]) // Garante que não haja dois agendamentos no mesmo horário
 }
 
 enum MeetingStatus {
