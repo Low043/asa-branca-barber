@@ -7,6 +7,8 @@ const PROFILE_KEY = 'barber.user-profile';
 const PROFILE_EVENT = 'barber.user-profile-updated';
 let cachedProfileRaw: string | null | undefined;
 let cachedProfileSnapshot: UserProfile | null = null;
+const NAME_REGEX = /^[\p{L}]+(?:\s+[\p{L}]+)*$/u;
+export const MIN_NAME_LENGTH = 5;
 
 export function normalizePhone(phone: string) {
   return phone.replace(/\D/g, '');
@@ -42,9 +44,17 @@ export function formatPhoneInput(phone: string) {
   return `${ddd} ${local.slice(0, 5)}-${local.slice(5)}`;
 }
 
+export function normalizeName(name: string) {
+  return name.trim().replace(/\s+/g, ' ');
+}
+
+export function isNameLettersOnly(name: string) {
+  return NAME_REGEX.test(normalizeName(name));
+}
+
 export function isValidName(name: string) {
-  const compactName = name.trim().replace(/\s+/g, ' ');
-  return compactName.length >= 2 && /^[\p{L}]+(?:\s+[\p{L}]+)*$/u.test(compactName);
+  const compactName = normalizeName(name);
+  return compactName.length >= MIN_NAME_LENGTH && NAME_REGEX.test(compactName);
 }
 
 export function isValidPhone(phone: string) {

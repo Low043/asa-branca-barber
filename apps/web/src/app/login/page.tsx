@@ -5,8 +5,10 @@ import { FormEvent, Suspense, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   formatPhoneInput,
-  isValidName,
+  isNameLettersOnly,
   isValidPhone,
+  MIN_NAME_LENGTH,
+  normalizeName,
   normalizePhone,
   setProfile,
 } from '@/lib/profile';
@@ -28,7 +30,13 @@ function LoginContent() {
   const canSubmit = name.trim().length > 0 && normalizePhone(phone).length > 0;
 
   function getLoginError(inputName: string, inputPhone: string) {
-    if (!isValidName(inputName)) return 'Nome inválido. Use apenas letras.';
+    const compactName = normalizeName(inputName);
+    if (compactName.length < MIN_NAME_LENGTH) {
+      return `Nome muito curto. Use pelo menos ${MIN_NAME_LENGTH} letras.`;
+    }
+    if (!isNameLettersOnly(compactName)) {
+      return 'Nome inválido. Use apenas letras.';
+    }
     if (!isValidPhone(inputPhone)) return 'Telefone inválido. Use DD NNNNN-NNNN.';
     return null;
   }

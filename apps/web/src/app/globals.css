@@ -37,7 +37,8 @@ svg {
 .figma-screen {
   width: 100%;
   max-width: 393px;
-  min-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
   margin: 0 auto;
   background: #dedede;
   position: relative;
@@ -564,4 +565,66 @@ svg {
   background: #f1f1f1;
   font-size: 14px;
   color: #1e1e1e;
+}
+
+@media (max-width: 480px) {
+  .services-main {
+    padding: 24px 16px calc(80px + env(safe-area-inset-bottom));
+    gap: 24px;
+  }
+
+  .scheduling-main {
+    padding: 20px 16px calc(96px + env(safe-area-inset-bottom));
+    gap: 20px;
+  }
+
+  .scheduling-title {
+    font-size: 18px;
+  }
+
+  .scheduling-subtitle {
+    font-size: 13px;
+  }
+
+  .calendar-block {
+    gap: 12px;
+  }
+
+  .calendar-card {
+    padding: 12px;
+  }
+
+  .month-row {
+    margin-bottom: 10px;
+  }
+
+  .days-header {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .day-cell {
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .time-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .time-chip {
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .reserve-footer {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: min(393px, 100%);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: #dedede;
+  }
 }
