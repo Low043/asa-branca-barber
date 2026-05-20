@@ -32,6 +32,13 @@ export class ApiError extends Error {
 }
 
 const API_PREFIX = '/api';
+const SERVICES_REVALIDATE_SECONDS = 300;
+
+type RequestConfig = RequestInit & {
+  next?: {
+    revalidate?: number;
+  };
+};
 
 async function parseErrorMessage(response: Response) {
   try {
@@ -50,15 +57,17 @@ async function parseErrorMessage(response: Response) {
   return 'Não foi possível concluir esta ação.';
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_PREFIX}${path}`, {
+async function request<T>(path: string, init?: RequestConfig): Promise<T> {
+  const requestInit: RequestConfig = {
     ...init,
-    cache: 'no-store',
+    cache: init?.cache ?? 'no-store',
     headers: {
       ...(init?.headers ?? {}),
       'Content-Type': 'application/json',
     },
-  });
+  };
+
+  const response = await fetch(`${API_PREFIX}${path}`, requestInit);
 
   if (!response.ok) {
     const message = await parseErrorMessage(response);
@@ -70,7 +79,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function fetchServices() {
-  return request<Service[]>('/services');
+  return request<Service[]>('/services', {
+    cache: 'force-cache',
+    ...(typeof window === 'undefined'
+      ? {
+          next: {
+            revalidate: SERVICES_REVALIDATE_SECONDS,
+          },
+        }
+      : {}),
+  });
 }
 
 export async function fetchAvailableTimes(date: string) {

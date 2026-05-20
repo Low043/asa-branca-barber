@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   IconArrowLeft,
@@ -70,6 +70,7 @@ function SchedulingContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const timesCacheRef = useRef<Map<string, string[]>>(new Map());
 
   const initialMonth = useMemo(() => {
     const [year, month] = todayYmd().split('-').map(Number);
@@ -110,10 +111,23 @@ function SchedulingContent() {
   }, [hydrated, profile, queryServiceId, router]);
 
   useEffect(() => {
+    timesCacheRef.current.clear();
+  }, []);
+
+  useEffect(() => {
     async function loadTimes() {
       setSelectedTime('');
+      setError('');
+
+      const cached = timesCacheRef.current.get(selectedDate);
+      if (cached) {
+        setTimes(cached);
+        return;
+      }
+
       try {
         const available = await fetchAvailableTimes(selectedDate);
+        timesCacheRef.current.set(selectedDate, available);
         setTimes(available);
       } catch (requestError) {
         setTimes([]);
@@ -145,7 +159,7 @@ function SchedulingContent() {
         userPhone: profile.phone,
         date: toMeetingIsoUtc(selectedDate, selectedTime),
       });
-      router.push('/my-meetings?created=1');
+      router.push('/my-meetings');
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Não foi possível confirmar.');
     } finally {
@@ -258,7 +272,7 @@ function SchedulingContent() {
             <p className="modal-service">{selectedService?.name ?? 'Serviço não informado'}</p>
 
             <div className="modal-meta">
-              <IconCalendar className="icon-16" />
+              <IconCalendar className="icon-16 icon-slim" />
               <span>{formatDatePtBr(selectedDate)}</span>
             </div>
             <div className="modal-meta">

@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/BottomNav';
 import { IconCalendar, IconClock, IconLogout, IconMapPin, IconTrash2, IconX } from '@/components/icons';
 import { cancelMeeting, fetchMeetingsByPhone, fetchServices, Meeting, Service } from '@/lib/api';
@@ -10,9 +10,6 @@ import { clearProfile, getProfileSnapshot, subscribeProfile } from '@/lib/profil
 
 function MyMeetingsContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const created = searchParams.get('created') === '1';
-
   const hydrated = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -85,7 +82,7 @@ function MyMeetingsContent() {
           <div>
             <h1 className="services-name">{firstName}</h1>
             <div className="services-location">
-              <IconMapPin className="icon-13" />
+              <IconMapPin className="icon-13 icon-slim" />
               <span>Natal - RN</span>
             </div>
           </div>
@@ -98,14 +95,13 @@ function MyMeetingsContent() {
               router.replace('/login');
             }}
           >
-            <IconLogout className="icon-24" />
+            <IconLogout className="icon-24 icon-slim" />
           </button>
         </header>
 
         <section className="schedules-container">
           <h2 className="section-title">Seus agendamentos</h2>
 
-          {created ? <p className="helper-text">Agendamento confirmado com sucesso.</p> : null}
           {error ? <p className="error-text">{error}</p> : null}
 
           {meetings.length === 0 ? (
@@ -121,7 +117,7 @@ function MyMeetingsContent() {
 
                 <div className="schedule-date-time">
                   <div className="schedule-meta-row">
-                    <IconCalendar className="schedule-meta-icon icon-16" />
+                    <IconCalendar className="schedule-meta-icon icon-16 icon-slim" />
                     <span>{dateLabel}</span>
                   </div>
 
@@ -132,7 +128,7 @@ function MyMeetingsContent() {
                 </div>
 
                 <button className="schedule-delete-chip" type="button" onClick={() => askCancel(meeting)}>
-                  <IconTrash2 className="icon-14" />
+                  <IconTrash2 className="icon-14 icon-slim" />
                   Cancelar
                 </button>
               </article>
@@ -158,7 +154,7 @@ function MyMeetingsContent() {
                 <>
                   <p className="modal-service">{servicesMap.get(meetingToCancel.serviceId) ?? 'Serviço'}</p>
                   <div className="modal-meta">
-                    <IconCalendar className="icon-16" />
+                    <IconCalendar className="icon-16 icon-slim" />
                     <span>{dateLabel}</span>
                   </div>
                   <div className="modal-meta">

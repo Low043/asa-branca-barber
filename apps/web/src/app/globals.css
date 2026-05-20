@@ -548,6 +548,12 @@ svg {
   height: 24px;
 }
 
+.icon-slim {
+  stroke-width: 1.25;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
 .cancel-confirm-btn {
   height: 32px;
   border: none;
@@ -591,7 +597,10 @@ svg {
   }
 
   .calendar-card {
+    width: 100%;
+    max-width: 340px;
     padding: 12px;
+    margin: 0 auto;
   }
 
   .month-row {
@@ -604,7 +613,8 @@ svg {
   }
 
   .day-cell {
-    height: 38px;
+    height: auto;
+    aspect-ratio: 1 / 1;
     font-size: 14px;
   }
 
