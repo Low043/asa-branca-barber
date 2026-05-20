@@ -161,18 +161,20 @@ svg {
 }
 
 .service-card {
+  position: relative;
   border-radius: 8px;
   background: #ffffff;
   padding: 10px;
   display: grid;
   gap: 4px;
+  min-height: 90px;
 }
 
 .service-name {
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .service-meta-row {
@@ -180,27 +182,37 @@ svg {
   align-items: center;
   gap: 4px;
   color: #1e1e1e;
-  font-size: 12px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.service-meta-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .reserve-chip {
-  margin-left: auto;
-  margin-top: 4px;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
   border: none;
   border-radius: 8px;
   background: #ffb228;
   color: #1e1e1e;
   font-size: 12px;
   height: 28px;
+  width: 82px;
   padding: 0 8px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  justify-content: center;
   cursor: pointer;
 }
 
 .reserve-chip svg {
-  font-size: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .figma-bottom-nav {
@@ -473,7 +485,7 @@ svg {
   padding: 10px;
   display: grid;
   gap: 4px;
-  min-height: 88px;
+  min-height: 90px;
 }
 
 .schedule-date-time {
@@ -488,6 +500,7 @@ svg {
   gap: 4px;
   font-size: 16px;
   color: #1e1e1e;
+  line-height: 1.2;
 }
 
 .schedule-meta-icon {

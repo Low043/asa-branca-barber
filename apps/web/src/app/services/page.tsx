@@ -80,17 +80,17 @@ export default function ServicesPage() {
               <p className="service-name">{service.name}</p>
 
               <div className="service-meta-row">
-                <IconClock className="icon-14" />
+                <IconClock className="service-meta-icon icon-16" />
                 <span>{service.durationMinutes} min</span>
               </div>
 
               <div className="service-meta-row">
-                <IconCreditCard className="icon-14" />
+                <IconCreditCard className="service-meta-icon icon-16" />
                 <span>{moneyFormatter.format(service.priceCents / 100)}</span>
               </div>
 
               <button className="reserve-chip" type="button" onClick={() => reserve(service.id)}>
-                <IconCalendar className="icon-14" />
+                <IconCalendar className="service-meta-icon icon-14 icon-slim" />
                 Reservar
               </button>
             </article>
