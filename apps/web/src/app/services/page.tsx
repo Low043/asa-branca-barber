@@ -55,7 +55,7 @@ export default function ServicesPage() {
           <div>
             <h1 className="services-name">{firstName}</h1>
             <div className="services-location">
-              <IconMapPin className="icon-13 icon-slim" />
+              <IconMapPin className="icon-13" />
               <span>Natal - RN</span>
             </div>
           </div>
@@ -68,7 +68,7 @@ export default function ServicesPage() {
               router.replace('/login');
             }}
           >
-            <IconLogout className="icon-24 icon-slim" />
+            <IconLogout className="icon-24" />
           </button>
         </header>
 
@@ -90,7 +90,7 @@ export default function ServicesPage() {
               </div>
 
               <button className="reserve-chip" type="button" onClick={() => reserve(service.id)}>
-                <IconCalendar className="icon-14 icon-slim" />
+                <IconCalendar className="icon-14" />
                 Reservar
               </button>
             </article>

@@ -2,19 +2,31 @@ import type { SVGProps } from 'react';
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-function BaseIcon({ children, ...props }: IconProps & { children: React.ReactNode }) {
+function BaseIcon({
+  children,
+  strokeWidth,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  viewBox = '0 0 24 24',
+  style,
+  ...props
+}: IconProps & { children: React.ReactNode }) {
   return (
     <svg
       fill="none"
       stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
+      strokeLinecap={strokeLinecap}
+      strokeLinejoin={strokeLinejoin}
+      strokeWidth={strokeWidth ?? '2'}
+      viewBox={viewBox}
       preserveAspectRatio="xMidYMid meet"
       width="1em"
       height="1em"
       aria-hidden="true"
+      style={{
+        strokeWidth: strokeWidth,
+        ...style,
+      }}
       {...props}
     >
       {children}
@@ -25,8 +37,8 @@ function BaseIcon({ children, ...props }: IconProps & { children: React.ReactNod
 export function IconMapPin(props: IconProps) {
   return (
     <BaseIcon {...props}>
-      <path d="M12 14s-5-4.1-5-8a5 5 0 1 1 10 0c0 3.9-5 8-5 8Z" />
-      <circle cx="12" cy="6.5" r="1.5" />
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
     </BaseIcon>
   );
 }
@@ -34,9 +46,9 @@ export function IconMapPin(props: IconProps) {
 export function IconLogout(props: IconProps) {
   return (
     <BaseIcon {...props}>
-      <path d="M10 17H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h4" />
-      <path d="M14 8l5 4-5 4" />
-      <path d="M19 12H9" />
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
     </BaseIcon>
   );
 }

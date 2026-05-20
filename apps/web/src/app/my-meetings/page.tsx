@@ -82,7 +82,7 @@ function MyMeetingsContent() {
           <div>
             <h1 className="services-name">{firstName}</h1>
             <div className="services-location">
-              <IconMapPin className="icon-13 icon-slim" />
+              <IconMapPin className="icon-13" />
               <span>Natal - RN</span>
             </div>
           </div>
@@ -95,7 +95,7 @@ function MyMeetingsContent() {
               router.replace('/login');
             }}
           >
-            <IconLogout className="icon-24 icon-slim" />
+            <IconLogout className="icon-24" />
           </button>
         </header>
 
@@ -117,7 +117,7 @@ function MyMeetingsContent() {
 
                 <div className="schedule-date-time">
                   <div className="schedule-meta-row">
-                    <IconCalendar className="schedule-meta-icon icon-16 icon-slim" />
+                    <IconCalendar className="schedule-meta-icon icon-16" />
                     <span>{dateLabel}</span>
                   </div>
 
@@ -128,7 +128,7 @@ function MyMeetingsContent() {
                 </div>
 
                 <button className="schedule-delete-chip" type="button" onClick={() => askCancel(meeting)}>
-                  <IconTrash2 className="icon-14 icon-slim" />
+                  <IconTrash2/>
                   Cancelar
                 </button>
               </article>
@@ -154,7 +154,7 @@ function MyMeetingsContent() {
                 <>
                   <p className="modal-service">{servicesMap.get(meetingToCancel.serviceId) ?? 'Serviço'}</p>
                   <div className="modal-meta">
-                    <IconCalendar className="icon-16 icon-slim" />
+                    <IconCalendar className="icon-16" />
                     <span>{dateLabel}</span>
                   </div>
                   <div className="modal-meta">

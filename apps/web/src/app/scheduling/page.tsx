@@ -272,7 +272,7 @@ function SchedulingContent() {
             <p className="modal-service">{selectedService?.name ?? 'Serviço não informado'}</p>
 
             <div className="modal-meta">
-              <IconCalendar className="icon-16 icon-slim" />
+              <IconCalendar className="icon-16" />
               <span>{formatDatePtBr(selectedDate)}</span>
             </div>
             <div className="modal-meta">
