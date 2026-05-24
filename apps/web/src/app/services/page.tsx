@@ -11,8 +11,9 @@ import {
   IconMapPin,
   IconEdit,
   IconX,
+  IconPlus,
 } from '@/components/icons';
-import { fetchServices, Service, updateService, deleteService } from '@/lib/api';
+import { fetchServices, Service, updateService, deleteService, createService } from '@/lib/api';
 import { clearProfile, getProfileSnapshot, subscribeProfile } from '@/lib/profile';
 
 const moneyFormatter = new Intl.NumberFormat('pt-BR', {
@@ -31,10 +32,18 @@ export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [error, setError] = useState('');
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Edit Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editPriceReais, setEditPriceReais] = useState('');
+
+  // Create Modal States
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newPriceReais, setNewPriceReais] = useState('');
+  const [newDuration, setNewDuration] = useState(30);
+
   const [saving, setSaving] = useState(false);
-  const [priceReais, setPriceReais] = useState('');
 
   useEffect(() => {
     if (!hydrated) return;
@@ -56,6 +65,7 @@ export default function ServicesPage() {
   }, [hydrated, profile, router]);
 
   const firstName = useMemo(() => profile?.name ?? '\u00A0', [profile?.name]);
+  const isAdmin = profile?.isAdmin === true;
 
   function reserve(serviceId: string) {
     router.push(`/scheduling?serviceId=${serviceId}`);
@@ -63,23 +73,23 @@ export default function ServicesPage() {
 
   function handleEdit(service: Service) {
     setEditingService(service);
-    setPriceReais((service.priceCents / 100).toFixed(2).replace('.', ','));
-    setIsModalOpen(true);
+    setEditPriceReais((service.priceCents / 100).toFixed(2).replace('.', ','));
+    setIsEditModalOpen(true);
   }
 
-  async function onSave() {
+  async function onSaveEdit() {
     if (!editingService) return;
     setSaving(true);
     setError('');
     try {
-      const priceCents = Math.round(parseFloat(priceReais.replace(',', '.')) * 100);
+      const priceCents = Math.round(parseFloat(editPriceReais.replace(',', '.')) * 100);
       const updated = await updateService(editingService.id, {
         name: editingService.name,
         durationMinutes: editingService.durationMinutes,
         priceCents,
       });
       setServices((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-      setIsModalOpen(false);
+      setIsEditModalOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar serviço.');
     } finally {
@@ -94,12 +104,38 @@ export default function ServicesPage() {
     try {
       await deleteService(editingService.id);
       setServices((prev) => prev.filter((s) => s.id !== editingService.id));
-      setIsModalOpen(false);
+      setIsEditModalOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao excluir serviço.');
     } finally {
       setSaving(false);
     }
+  }
+
+  async function onCreate() {
+    setSaving(true);
+    setError('');
+    try {
+      const priceCents = Math.round(parseFloat(newPriceReais.replace(',', '.')) * 100);
+      const created = await createService({
+        name: newName,
+        priceCents,
+        durationMinutes: newDuration,
+      });
+      setServices((prev) => [...prev, created]);
+      setIsCreateModalOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar serviço.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openCreateModal() {
+    setNewName('');
+    setNewPriceReais('');
+    setNewDuration(30);
+    setIsCreateModalOpen(true);
   }
 
   return (
@@ -131,13 +167,15 @@ export default function ServicesPage() {
 
           {services.map((service) => (
             <article className="service-card" key={service.id}>
-              <button
-                className="icon-btn"
-                style={{ position: 'absolute', top: '8px', right: '8px', color: '#757575' }}
-                onClick={() => handleEdit(service)}
-              >
-                <IconEdit className="icon-20" />
-              </button>
+              {isAdmin && (
+                <button
+                  className="icon-btn"
+                  style={{ position: 'absolute', top: '8px', right: '8px', color: '#757575' }}
+                  onClick={() => handleEdit(service)}
+                >
+                  <IconEdit className="icon-20" />
+                </button>
+              )}
 
               <p className="service-name">{service.name}</p>
 
@@ -165,14 +203,40 @@ export default function ServicesPage() {
           {error ? <p className="error-text">{error}</p> : null}
         </section>
       </section>
+
+      {isAdmin && (
+        <button
+          className="icon-btn"
+          onClick={openCreateModal}
+          style={{
+            position: 'absolute',
+            bottom: '80px',
+            right: '20px',
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            backgroundColor: '#ffb228',
+            color: '#ffffff',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+          }}
+        >
+          <IconPlus className="icon-24" />
+        </button>
+      )}
+
       <BottomNav active="services" />
 
-      {isModalOpen && editingService && (
+      {/* Edit Modal */}
+      {isEditModalOpen && editingService && (
         <div className="modal-overlay">
           <div className="modal-card">
             <div className="modal-title-row">
               <h2 className="modal-title">Editar Serviço</h2>
-              <button className="icon-btn" onClick={() => setIsModalOpen(false)}>
+              <button className="icon-btn" onClick={() => setIsEditModalOpen(false)}>
                 <IconX />
               </button>
             </div>
@@ -196,8 +260,8 @@ export default function ServicesPage() {
                     type="text"
                     className="login-input"
                     style={{ width: '100%', height: '40px', border: '1px solid #dedede' }}
-                    value={priceReais}
-                    onChange={(e) => setPriceReais(e.target.value)}
+                    value={editPriceReais}
+                    onChange={(e) => setEditPriceReais(e.target.value)}
                   />
                 </div>
                 <div>
@@ -224,8 +288,66 @@ export default function ServicesPage() {
                 >
                   Excluir Serviço
                 </button>
-                <button className="primary-btn" disabled={saving} onClick={onSave}>
+                <button className="primary-btn" disabled={saving} onClick={onSaveEdit}>
                   {saving ? 'Salvando...' : 'Salvar Alterações'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Modal */}
+      {isCreateModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-title-row">
+              <h2 className="modal-title">Novo Serviço</h2>
+              <button className="icon-btn" onClick={() => setIsCreateModalOpen(false)}>
+                <IconX />
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gap: '12px' }}>
+              <div>
+                <label className="helper-text">Nome do Serviço</label>
+                <input
+                  type="text"
+                  className="login-input"
+                  style={{ width: '100%', height: '40px', border: '1px solid #dedede' }}
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Ex: Barba completa"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="helper-text">Valor (R$)</label>
+                  <input
+                    type="text"
+                    className="login-input"
+                    style={{ width: '100%', height: '40px', border: '1px solid #dedede' }}
+                    value={newPriceReais}
+                    onChange={(e) => setNewPriceReais(e.target.value)}
+                    placeholder="25,00"
+                  />
+                </div>
+                <div>
+                  <label className="helper-text">Duração (min)</label>
+                  <input
+                    type="number"
+                    className="login-input"
+                    style={{ width: '100%', height: '40px', border: '1px solid #dedede' }}
+                    value={newDuration}
+                    onChange={(e) => setNewDuration(parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginTop: '8px' }}>
+                <button className="primary-btn" disabled={saving} onClick={onCreate}>
+                  {saving ? 'Criando...' : 'Criar Serviço'}
                 </button>
               </div>
             </div>

@@ -79,8 +79,9 @@ function LoginContent() {
           onChange={(event) => {
             setError('');
             const onlyLetters = event.target.value.replace(/[^\p{L}\s]/gu, '');
-            setName(onlyLetters.replace(/\s{2,}/g, ' '));
+            setName(onlyLetters.replace(/\s{2,}/g, ' ').slice(0, 25));
           }}
+          maxLength={25}
           autoComplete="name"
         />
         <input

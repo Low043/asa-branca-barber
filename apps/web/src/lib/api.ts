@@ -116,6 +116,13 @@ export async function updateService(id: string, dto: Partial<Service>) {
   });
 }
 
+export async function createService(dto: Omit<Service, 'id' | 'isActive'>) {
+  return request<Service>('/services', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
 export async function deleteService(id: string) {
   return request<void>(`/services/${id}`, {
     method: 'DELETE',
@@ -135,6 +142,10 @@ export async function createMeeting(payload: CreateMeetingPayload) {
 
 export async function fetchMeetingsByPhone(phone: string) {
   return request<Meeting[]>(`/meetings/${encodeURIComponent(phone)}`);
+}
+
+export async function fetchAllMeetings() {
+  return request<Meeting[]>('/meetings');
 }
 
 export async function cancelMeeting(meetingId: string) {

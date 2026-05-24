@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useState, useSyncExternalStore } from 're
 import { useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/BottomNav';
 import { IconCalendar, IconClock, IconLogout, IconMapPin, IconTrash2, IconX } from '@/components/icons';
-import { cancelMeeting, fetchMeetingsByPhone, fetchServices, Meeting, Service } from '@/lib/api';
+import { cancelMeeting, fetchAllMeetings, fetchMeetingsByPhone, fetchServices, Meeting, Service } from '@/lib/api';
 import { formatMeetingDateTime } from '@/lib/date';
 import { clearProfile, getProfileSnapshot, subscribeProfile } from '@/lib/profile';
 
@@ -17,6 +17,7 @@ function MyMeetingsContent() {
   );
   const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [otherMeetings, setOtherMeetings] = useState<Meeting[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [error, setError] = useState('');
   const [meetingToCancel, setMeetingToCancel] = useState<Meeting | null>(null);
@@ -27,6 +28,26 @@ function MyMeetingsContent() {
     [services],
   );
   const firstName = useMemo(() => profile?.name ?? '', [profile?.name]);
+  const isAdmin = profile?.isAdmin === true;
+
+  const loadMeetings = useMemo(() => {
+    return async (phone: string, currentIsAdmin: boolean) => {
+      try {
+        const [meetingsData, servicesData, allMeetingsData] = await Promise.all([
+          fetchMeetingsByPhone(phone),
+          fetchServices(),
+          currentIsAdmin ? fetchAllMeetings() : Promise.resolve([]),
+        ]);
+        setMeetings(meetingsData);
+        setServices(servicesData);
+        if (currentIsAdmin) {
+          setOtherMeetings(allMeetingsData.filter((m) => m.userPhone !== phone));
+        }
+      } catch (requestError) {
+        setError(requestError instanceof Error ? requestError.message : 'Não foi possível carregar.');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -35,23 +56,9 @@ function MyMeetingsContent() {
       router.replace('/login?next=/my-meetings');
       return;
     }
-    const currentProfile = profile;
 
-    async function load() {
-      try {
-        const [meetingsData, servicesData] = await Promise.all([
-          fetchMeetingsByPhone(currentProfile.phone),
-          fetchServices(),
-        ]);
-        setMeetings(meetingsData);
-        setServices(servicesData);
-      } catch (requestError) {
-        setError(requestError instanceof Error ? requestError.message : 'Não foi possível carregar.');
-      }
-    }
-
-    void load();
-  }, [hydrated, profile, router]);
+    void loadMeetings(profile.phone, isAdmin);
+  }, [hydrated, profile, router, isAdmin, loadMeetings]);
 
   function askCancel(meeting: Meeting) {
     setError('');
@@ -65,8 +72,7 @@ function MyMeetingsContent() {
 
     try {
       await cancelMeeting(meetingToCancel.id);
-      const updated = await fetchMeetingsByPhone(profile.phone);
-      setMeetings(updated);
+      await loadMeetings(profile.phone, isAdmin);
       setMeetingToCancel(null);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Não foi possível cancelar.');
@@ -134,6 +140,46 @@ function MyMeetingsContent() {
               </article>
             );
           })}
+
+          {isAdmin && (
+            <>
+              <h2 className="section-title" style={{ marginTop: '32px' }}>Outros agendamentos</h2>
+              {otherMeetings.length === 0 ? (
+                <p className="helper-text">Nenhum outro agendamento encontrado.</p>
+              ) : null}
+              {otherMeetings.map((meeting) => {
+                const [dateLabel, timeLabel = ''] = formatMeetingDateTime(meeting.date).split(' às ');
+
+                return (
+                  <article className="schedule-card" key={meeting.id}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+                      <p className="service-name">{servicesMap.get(meeting.serviceId) ?? 'Serviço'}</p>
+                      <p className="helper-text" style={{ fontSize: '14px' }}>
+                        {meeting.clientName} - {meeting.userPhone}
+                      </p>
+                    </div>
+
+                    <div className="schedule-date-time" style={{ marginTop: '8px' }}>
+                      <div className="schedule-meta-row">
+                        <IconCalendar className="schedule-meta-icon icon-16" />
+                        <span>{dateLabel}</span>
+                      </div>
+
+                      <div className="schedule-meta-row">
+                        <IconClock className="schedule-meta-icon icon-16" />
+                        <span>{timeLabel}</span>
+                      </div>
+                    </div>
+
+                    <button className="schedule-delete-chip" type="button" onClick={() => askCancel(meeting)}>
+                      <IconTrash2/>
+                      Cancelar
+                    </button>
+                  </article>
+                );
+              })}
+            </>
+          )}
         </section>
       </section>
       <BottomNav active="my-meetings" />
