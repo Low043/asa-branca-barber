@@ -1,4 +1,13 @@
-import { Controller, HttpException, Body, Param, Get, Post, Put } from '@nestjs/common';
+import {
+  Controller,
+  HttpException,
+  Body,
+  Param,
+  Get,
+  Post,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { ScheduleExceptionsService } from './schedule-exceptions.service';
 import { SchedulesService } from './schedules.service';
 import { z } from 'zod';
@@ -55,5 +64,10 @@ export class SchedulesController {
     }
 
     return await this.schedules.update(parsedDayOfWeek.data, dto);
+  }
+
+  @Delete('/exceptions/:id')
+  async deleteException(@Param('id') id: string) {
+    return await this.scheduleExceptions.delete(id);
   }
 }

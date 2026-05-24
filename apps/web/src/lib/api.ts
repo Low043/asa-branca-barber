@@ -6,6 +6,24 @@ export interface Service {
   isActive: boolean;
 }
 
+export interface Schedule {
+  dayOfWeek: number;
+  openTime: string;
+  closeTime: string;
+  lunchStart: string;
+  lunchEnd: string;
+}
+
+export interface ScheduleException {
+  id: string;
+  date: string;
+  description: string;
+  openTime: string;
+  closeTime: string;
+  lunchStart: string;
+  lunchEnd: string;
+}
+
 export interface Meeting {
   id: string;
   date: string;
@@ -91,6 +109,19 @@ export async function fetchServices() {
   });
 }
 
+export async function updateService(id: string, dto: Partial<Service>) {
+  return request<Service>(`/services/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function deleteService(id: string) {
+  return request<void>(`/services/${id}`, {
+    method: 'DELETE',
+  });
+}
+
 export async function fetchAvailableTimes(date: string) {
   return request<string[]>(`/schedules/${date}`);
 }
@@ -108,6 +139,34 @@ export async function fetchMeetingsByPhone(phone: string) {
 
 export async function cancelMeeting(meetingId: string) {
   return request<Meeting>(`/meetings/${meetingId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function fetchSchedules() {
+  return request<Schedule[]>('/schedules');
+}
+
+export async function updateSchedule(dayOfWeek: number, dto: Partial<Schedule>) {
+  return request<Schedule>(`/schedules/${dayOfWeek}`, {
+    method: 'PUT',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function fetchExceptions() {
+  return request<ScheduleException[]>('/schedules/exceptions');
+}
+
+export async function createException(dto: Omit<ScheduleException, 'id'>) {
+  return request<ScheduleException>('/schedules/exceptions', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function deleteException(id: string) {
+  return request<void>(`/schedules/exceptions/${id}`, {
     method: 'DELETE',
   });
 }
