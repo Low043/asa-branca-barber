@@ -19,5 +19,9 @@ export function dateWithoutTime(date: Date): Date {
 
 export function getLocalDateTime() {
   const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60 * 1000);
+  // Fuso horário do Brasil (UTC-3) = 3 horas em milissegundos
+  const BRAZIL_OFFSET = 3 * 60 * 60 * 1000;
+
+  // Retorna um objeto Date onde os métodos getUTC*() vão retornar a hora local do Brasil
+  return new Date(now.getTime() - BRAZIL_OFFSET);
 }

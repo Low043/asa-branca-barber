@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { FormEvent, Suspense, useMemo, useState } from 'react';
+import { FormEvent, Suspense, useMemo, useState, useEffect, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   formatPhoneInput,
@@ -11,12 +11,21 @@ import {
   normalizeName,
   normalizePhone,
   setProfile,
+  getProfileSnapshot,
+  subscribeProfile,
 } from '@/lib/profile';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get('next');
+
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => null);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -27,7 +36,21 @@ function LoginContent() {
     return nextPath;
   }, [nextPath]);
 
+  useEffect(() => {
+    if (hydrated && profile) {
+      router.replace(redirectPath);
+    }
+  }, [hydrated, profile, router, redirectPath]);
+
   const canSubmit = name.trim().length > 0 && normalizePhone(phone).length > 0;
+
+  if (hydrated && profile) {
+    return (
+      <main className="figma-screen login-screen">
+        <p className="helper-text">Carregando...</p>
+      </main>
+    );
+  }
 
   function getLoginError(inputName: string, inputPhone: string) {
     const compactName = normalizeName(inputName);
