@@ -175,9 +175,41 @@ export default function SchedulesPage() {
                 </div>
               </div>
 
-              <button className="primary-btn" disabled={saving} onClick={handleSave}>
-                {saving ? 'Salvando...' : 'Salvar Alterações'}
-              </button>
+              <div style={{ display: 'grid', gap: '8px', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  className="primary-btn"
+                  style={{ background: '#ff2e2e', color: '#ffffff' }}
+                  disabled={saving}
+                  onClick={async () => {
+                    setSaving(true);
+                    setError('');
+                    try {
+                      const closedSchedule = {
+                        ...editingSchedule,
+                        openTime: '00:00',
+                        closeTime: '00:00',
+                        lunchStart: '00:00',
+                        lunchEnd: '00:00',
+                      };
+                      await updateSchedule(editingSchedule.dayOfWeek, closedSchedule);
+                      setSchedules((prev) =>
+                        prev.map((s) => (s.dayOfWeek === editingSchedule.dayOfWeek ? closedSchedule : s))
+                      );
+                      setIsModalOpen(false);
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : 'Erro ao fechar dia.');
+                    } finally {
+                      setSaving(false);
+                    }
+                  }}
+                >
+                  Fechar no dia
+                </button>
+                <button className="primary-btn" disabled={saving} onClick={handleSave}>
+                  {saving ? 'Salvando...' : 'Salvar Alterações'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

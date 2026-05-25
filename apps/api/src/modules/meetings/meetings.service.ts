@@ -11,6 +11,7 @@ export class MeetingsService {
   async getActives() {
     return await this.prismaService.meeting.findMany({
       where: { status: MeetingStatus.SCHEDULED, date: { gte: getLocalDateTime() } },
+      orderBy: { date: 'asc' },
     });
   }
 
@@ -21,6 +22,7 @@ export class MeetingsService {
         status: MeetingStatus.SCHEDULED,
         date: { gte: getLocalDateTime() },
       },
+      orderBy: { date: 'asc' },
     });
   }
 
