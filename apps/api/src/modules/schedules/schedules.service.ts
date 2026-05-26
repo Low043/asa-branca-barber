@@ -1,5 +1,5 @@
 import { Schedule, ScheduleException, MeetingStatus } from '@generated/prisma/client';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { UpdateScheduleDto } from './dtos/schedule.dto';
 import {
@@ -17,13 +17,38 @@ const MEETING_DURATION = 30;
 export class SchedulesService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAll() {
+  async getAll(barberPhone: string) {
+    // Garante que todos os 7 dias existam para o barbeiro
+    await this.prismaService.schedule.createMany({
+      data: Array.from({ length: 7 }, (_, i) => ({
+        dayOfWeek: i,
+        barberPhone,
+        openTime: '00:00',
+        closeTime: '00:00',
+        lunchStart: '00:00',
+        lunchEnd: '00:00',
+      })),
+      skipDuplicates: true,
+    });
+
     return await this.prismaService.schedule.findMany({
+      where: { barberPhone },
       orderBy: { dayOfWeek: 'asc' },
     });
   }
 
-  async getAvailablesByDate(date: Date): Promise<string[]> {
+  async getAvailablesByDate(date: Date, serviceId?: string): Promise<string[]> {
+    if (!serviceId) return [];
+
+    const service = await this.prismaService.service.findUnique({
+      where: { id: serviceId },
+      select: { barberPhone: true },
+    });
+
+    if (!service) throw new NotFoundException('Serviço não encontrado');
+
+    const barberPhone = service.barberPhone;
+
     const localDateTime = getLocalDateTime();
     const localDate = dateWithoutTime(localDateTime);
     date = dateWithoutTime(date);
@@ -32,23 +57,24 @@ export class SchedulesService {
 
     // Procura pelo horário regular do dia da semana
     let schedule: ScheduleOrException = await this.prismaService.schedule.findFirst({
-      where: { dayOfWeek: date.getUTCDay() },
+      where: { dayOfWeek: date.getUTCDay(), barberPhone },
     });
 
     // Procura por uma exceção específica para a data (ex: feriado)
     const scheduleException = await this.prismaService.scheduleException.findFirst({
-      where: { date: date },
+      where: { date: date, barberPhone },
     });
 
     // Se houver exceção, substitui o horário regular. Se não houver nada, barbearia está fechada
     schedule = scheduleException || schedule;
     if (!schedule) return [];
 
-    // Busca por horários já reservados nesse dia
+    // Busca por horários já reservados nesse dia para ESSE barbeiro
     const meetings = await this.prismaService.meeting.findMany({
       where: {
         date: { gte: date, lt: new Date(date.getTime() + 24 * 60 * 60 * 1000) },
         status: MeetingStatus.SCHEDULED,
+        service: { barberPhone },
       },
     });
 
@@ -73,7 +99,18 @@ export class SchedulesService {
     return availableTimes;
   }
 
-  async update(dayOfWeek: number, dto: UpdateScheduleDto) {
-    return await this.prismaService.schedule.update({ where: { dayOfWeek }, data: dto });
+  async update(dayOfWeek: number, barberPhone: string, dto: UpdateScheduleDto) {
+    return await this.prismaService.schedule.upsert({
+      where: { barberPhone_dayOfWeek: { barberPhone, dayOfWeek } },
+      create: {
+        dayOfWeek,
+        barberPhone,
+        openTime: dto.openTime ?? '00:00',
+        closeTime: dto.closeTime ?? '00:00',
+        lunchStart: dto.lunchStart ?? '00:00',
+        lunchEnd: dto.lunchEnd ?? '00:00',
+      },
+      update: dto,
+    });
   }
 }

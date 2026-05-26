@@ -8,9 +8,13 @@ import { getLocalDateTime } from '../../utils/scheduleTime.util';
 export class MeetingsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getActives() {
+  async getActives(barberPhone: string) {
     return await this.prismaService.meeting.findMany({
-      where: { status: MeetingStatus.SCHEDULED, date: { gte: getLocalDateTime() } },
+      where: {
+        status: MeetingStatus.SCHEDULED,
+        date: { gte: getLocalDateTime() },
+        service: { barberPhone },
+      },
       orderBy: { date: 'asc' },
     });
   }
@@ -31,6 +35,7 @@ export class MeetingsService {
       where: {
         date: dto.date,
         status: MeetingStatus.SCHEDULED,
+        serviceId: dto.serviceId,
       },
       select: { id: true },
     });
@@ -47,7 +52,20 @@ export class MeetingsService {
     return await this.prismaService.meeting.create({ data: dto });
   }
 
-  async delete(id: string) {
+  async delete(id: string, userPhone: string) {
+    // Busca a reunião para verificar quem está cancelando
+    const meeting = await this.prismaService.meeting.findUnique({
+      where: { id },
+      include: { service: true },
+    });
+
+    if (!meeting) return null;
+
+    // Apenas o cliente dono ou o barbeiro do serviço podem cancelar
+    if (meeting.userPhone !== userPhone && meeting.service.barberPhone !== userPhone) {
+      throw new ConflictException('Não autorizado a cancelar este agendamento');
+    }
+
     return await this.prismaService.meeting.update({
       where: { id },
       data: { status: MeetingStatus.CANCELLED },

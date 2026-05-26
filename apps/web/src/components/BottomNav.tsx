@@ -13,13 +13,13 @@ interface BottomNavProps {
 
 export function BottomNav({ active }: BottomNavProps) {
   const profile = useSyncExternalStore(subscribeProfile, getProfileSnapshot, () => null);
-  const isAdmin = profile?.isAdmin === true;
+  const isBarber = profile?.role === 'BARBER';
 
   return (
     <nav className="figma-bottom-nav" aria-label="Navegação principal">
       <div
         className="figma-bottom-nav-inner"
-        style={{ gridTemplateColumns: isAdmin ? '1fr 1fr 1fr' : '1fr 1fr' }}
+        style={{ gridTemplateColumns: isBarber ? '1fr 1fr 1fr' : '1fr 1fr' }}
       >
         <Link className={`figma-nav-btn ${active === 'services' ? 'active' : ''}`} href="/services">
           <IconScissors className="figma-nav-icon" />
@@ -32,7 +32,7 @@ export function BottomNav({ active }: BottomNavProps) {
           <IconList className="figma-nav-icon" />
           Agendamentos
         </Link>
-        {isAdmin && (
+        {isBarber && (
           <Link className={`figma-nav-btn ${active === 'settings' ? 'active' : ''}`} href="/settings">
             <IconSettings className="figma-nav-icon" />
             Configurar

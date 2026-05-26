@@ -9,9 +9,19 @@ datasource db {
 }
 
 model User {
-  phone String @id @db.VarChar(16)
+  name  String?  @db.VarChar(25)
+  phone String   @id @db.VarChar(16)
+  role  UserRole @default(CLIENT)
 
   meetings Meeting[]
+  services Service[]
+  schedules Schedule[]
+  scheduleExceptions ScheduleException[]
+}
+
+enum UserRole {
+  BARBER
+  CLIENT
 }
 
 model Service {
@@ -22,6 +32,9 @@ model Service {
   isActive        Boolean       @default(true)
 
   meetings    Meeting[]
+
+  barber      User          @relation(fields: [barberPhone], references: [phone])
+  barberPhone String
 }
 
 model Meeting {
@@ -44,7 +57,8 @@ enum MeetingStatus {
 }
 
 model Schedule {
-  dayOfWeek  Int     @id // 0 = Domingo, 1 = Segunda...
+  id         String  @id @default(uuid())
+  dayOfWeek  Int // 0 = Domingo, 1 = Segunda...
   
   // Horários no formato "HH:mm"
   openTime   String
@@ -52,6 +66,11 @@ model Schedule {
   
   lunchStart String
   lunchEnd   String
+
+  barber      User          @relation(fields: [barberPhone], references: [phone])
+  barberPhone String
+
+  @@unique([barberPhone, dayOfWeek])
 }
 
 model ScheduleException {
@@ -64,4 +83,7 @@ model ScheduleException {
 
   lunchStart  String
   lunchEnd    String
+
+  barber      User          @relation(fields: [barberPhone], references: [phone])
+  barberPhone String
 }

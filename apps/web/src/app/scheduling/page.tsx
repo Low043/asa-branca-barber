@@ -116,18 +116,21 @@ function SchedulingContent() {
 
   useEffect(() => {
     async function loadTimes() {
+      if (!selectedServiceId) return;
+
       setSelectedTime('');
       setError('');
 
-      const cached = timesCacheRef.current.get(selectedDate);
+      const cacheKey = `${selectedServiceId}:${selectedDate}`;
+      const cached = timesCacheRef.current.get(cacheKey);
       if (cached) {
         setTimes(cached);
         return;
       }
 
       try {
-        const available = await fetchAvailableTimes(selectedDate);
-        timesCacheRef.current.set(selectedDate, available);
+        const available = await fetchAvailableTimes(selectedDate, selectedServiceId);
+        timesCacheRef.current.set(cacheKey, available);
         setTimes(available);
       } catch (requestError) {
         setTimes([]);
@@ -136,7 +139,7 @@ function SchedulingContent() {
     }
 
     void loadTimes();
-  }, [selectedDate]);
+  }, [selectedDate, selectedServiceId]);
 
   const weeks = useMemo(() => calendarWeeks(viewMonth), [viewMonth]);
   const monthName = useMemo(() => formatMonthLabel(viewMonth), [viewMonth]);

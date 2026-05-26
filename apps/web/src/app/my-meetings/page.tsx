@@ -24,23 +24,23 @@ function MyMeetingsContent() {
   const [cancelSubmitting, setCancelSubmitting] = useState(false);
 
   const servicesMap = useMemo(
-    () => new Map(services.map((service) => [service.id, service.name])),
+    () => new Map(services.map((service) => [service.id, service])),
     [services],
   );
   const firstName = useMemo(() => profile?.name ?? '', [profile?.name]);
-  const isAdmin = profile?.isAdmin === true;
+  const isBarber = profile?.role === 'BARBER';
 
   const loadMeetings = useMemo(() => {
-    return async (phone: string, currentIsAdmin: boolean) => {
+    return async (phone: string, currentIsBarber: boolean) => {
       try {
         const [meetingsData, servicesData, allMeetingsData] = await Promise.all([
           fetchMeetingsByPhone(phone),
           fetchServices(),
-          currentIsAdmin ? fetchAllMeetings() : Promise.resolve([]),
+          currentIsBarber ? fetchAllMeetings() : Promise.resolve([]),
         ]);
         setMeetings(meetingsData);
         setServices(servicesData);
-        if (currentIsAdmin) {
+        if (currentIsBarber) {
           setOtherMeetings(allMeetingsData.filter((m) => m.userPhone !== phone));
         }
       } catch (requestError) {
@@ -57,8 +57,8 @@ function MyMeetingsContent() {
       return;
     }
 
-    void loadMeetings(profile.phone, isAdmin);
-  }, [hydrated, profile, router, isAdmin, loadMeetings]);
+    void loadMeetings(profile.phone, isBarber);
+  }, [hydrated, profile, router, isBarber, loadMeetings]);
 
   function askCancel(meeting: Meeting) {
     setError('');
@@ -72,7 +72,7 @@ function MyMeetingsContent() {
 
     try {
       await cancelMeeting(meetingToCancel.id);
-      await loadMeetings(profile.phone, isAdmin);
+      await loadMeetings(profile.phone, isBarber);
       setMeetingToCancel(null);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Não foi possível cancelar.');
@@ -116,10 +116,14 @@ function MyMeetingsContent() {
 
           {meetings.map((meeting) => {
             const [dateLabel, timeLabel = ''] = formatMeetingDateTime(meeting.date).split(' às ');
+            const service = servicesMap.get(meeting.serviceId);
+            const serviceDisplayName = service
+              ? `${service.name} (${service.barber?.name || 'Barbeiro'})`
+              : 'Serviço';
 
             return (
               <article className="schedule-card" key={meeting.id}>
-                <p className="service-name">{servicesMap.get(meeting.serviceId) ?? 'Serviço'}</p>
+                <p className="service-name">{serviceDisplayName}</p>
 
                 <div className="schedule-date-time">
                   <div className="schedule-meta-row">
@@ -141,7 +145,7 @@ function MyMeetingsContent() {
             );
           })}
 
-          {isAdmin && (
+          {isBarber && (
             <>
               <h2 className="section-title" style={{ marginTop: '32px' }}>Outros agendamentos</h2>
               {otherMeetings.length === 0 ? (
@@ -149,11 +153,15 @@ function MyMeetingsContent() {
               ) : null}
               {otherMeetings.map((meeting) => {
                 const [dateLabel, timeLabel = ''] = formatMeetingDateTime(meeting.date).split(' às ');
+                const service = servicesMap.get(meeting.serviceId);
+                const serviceDisplayName = service
+                  ? `${service.name} (${service.barber?.name || 'Barbeiro'})`
+                  : 'Serviço';
 
                 return (
                   <article className="schedule-card" key={meeting.id}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
-                      <p className="service-name">{servicesMap.get(meeting.serviceId) ?? 'Serviço'}</p>
+                      <p className="service-name">{serviceDisplayName}</p>
                       <p className="helper-text" style={{ fontSize: '14px' }}>
                         {meeting.clientName} - {meeting.userPhone}
                       </p>
@@ -196,9 +204,14 @@ function MyMeetingsContent() {
 
             {(() => {
               const [dateLabel, timeLabel = ''] = formatMeetingDateTime(meetingToCancel.date).split(' às ');
+              const service = servicesMap.get(meetingToCancel.serviceId);
+              const serviceDisplayName = service
+                ? `${service.name} (${service.barber?.name || 'Barbeiro'})`
+                : 'Serviço';
+
               return (
                 <>
-                  <p className="modal-service">{servicesMap.get(meetingToCancel.serviceId) ?? 'Serviço'}</p>
+                  <p className="modal-service">{serviceDisplayName}</p>
                   <div className="modal-meta">
                     <IconCalendar className="icon-16" />
                     <span>{dateLabel}</span>

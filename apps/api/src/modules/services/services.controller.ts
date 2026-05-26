@@ -1,4 +1,4 @@
-import { Controller, Body, Param, Get, Post, Put, Delete } from '@nestjs/common';
+import { Controller, Body, Param, Get, Post, Put, Delete, Headers } from '@nestjs/common';
 import { CreateServiceDto, UpdateServiceDto } from './dtos/service.dto';
 import { ServicesService } from './services.service';
 
@@ -12,17 +12,24 @@ export class ServicesController {
   }
 
   @Post()
-  async createService(@Body() dto: CreateServiceDto) {
-    return await this.services.create(dto);
+  async createService(
+    @Headers('x-user-phone') phone: string,
+    @Body() dto: CreateServiceDto,
+  ) {
+    return await this.services.create(phone, dto);
   }
 
   @Put(':id')
-  async updateService(@Param('id') id: string, @Body() dto: UpdateServiceDto) {
-    return await this.services.update(id, dto);
+  async updateService(
+    @Param('id') id: string,
+    @Headers('x-user-phone') phone: string,
+    @Body() dto: UpdateServiceDto,
+  ) {
+    return await this.services.update(id, phone, dto);
   }
 
   @Delete(':id')
-  async deleteService(@Param('id') id: string) {
-    return await this.services.delete(id);
+  async deleteService(@Param('id') id: string, @Headers('x-user-phone') phone: string) {
+    return await this.services.delete(id, phone);
   }
 }

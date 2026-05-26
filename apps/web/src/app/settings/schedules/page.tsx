@@ -58,7 +58,7 @@ export default function SchedulesPage() {
     try {
       await updateSchedule(editingSchedule.dayOfWeek, editingSchedule);
       setSchedules((prev) =>
-        prev.map((s) => (s.dayOfWeek === editingSchedule.dayOfWeek ? editingSchedule : s))
+        prev.map((s) => (s.id === editingSchedule.id ? editingSchedule : s))
       );
       setIsModalOpen(false);
     } catch (err) {
@@ -194,7 +194,7 @@ export default function SchedulesPage() {
                       };
                       await updateSchedule(editingSchedule.dayOfWeek, closedSchedule);
                       setSchedules((prev) =>
-                        prev.map((s) => (s.dayOfWeek === editingSchedule.dayOfWeek ? closedSchedule : s))
+                        prev.map((s) => (s.id === editingSchedule.id ? closedSchedule : s))
                       );
                       setIsModalOpen(false);
                     } catch (err) {

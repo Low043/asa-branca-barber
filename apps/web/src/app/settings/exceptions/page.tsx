@@ -20,7 +20,7 @@ export default function ExceptionsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [newException, setNewException] = useState<Omit<ScheduleException, 'id'>>({
+  const [newException, setNewException] = useState<Omit<ScheduleException, 'id' | 'barberPhone'>>({
     date: new Date().toISOString().split('T')[0],
     description: '',
     openTime: '08:00',

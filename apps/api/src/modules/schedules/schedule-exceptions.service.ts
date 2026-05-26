@@ -7,31 +7,34 @@ import { dateWithoutTime, getLocalDateTime } from '../../utils/scheduleTime.util
 export class ScheduleExceptionsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAll() {
+  async getAll(barberPhone: string) {
     const today = dateWithoutTime(getLocalDateTime());
 
     return await this.prismaService.scheduleException.findMany({
       where: {
         date: { gte: today },
+        barberPhone,
       },
       orderBy: { date: 'asc' },
     });
   }
 
-  async create(dto: CreateScheduleExcptDto) {
-    return await this.prismaService.scheduleException.create({ data: dto });
+  async create(barberPhone: string, dto: CreateScheduleExcptDto) {
+    return await this.prismaService.scheduleException.create({
+      data: { ...dto, barberPhone },
+    });
   }
 
-  async update(id: string, dto: UpdateScheduleExcptDto) {
+  async update(id: string, barberPhone: string, dto: UpdateScheduleExcptDto) {
     return await this.prismaService.scheduleException.update({
-      where: { id },
+      where: { id, barberPhone },
       data: dto,
     });
   }
 
-  async delete(id: string) {
+  async delete(id: string, barberPhone: string) {
     return await this.prismaService.scheduleException.delete({
-      where: { id },
+      where: { id, barberPhone },
     });
   }
 }

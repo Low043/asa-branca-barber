@@ -65,7 +65,7 @@ export default function ServicesPage() {
   }, [hydrated, profile, router]);
 
   const firstName = useMemo(() => profile?.name ?? '\u00A0', [profile?.name]);
-  const isAdmin = profile?.isAdmin === true;
+  const isBarber = profile?.role === 'BARBER';
 
   function reserve(serviceId: string) {
     router.push(`/scheduling?serviceId=${serviceId}`);
@@ -167,7 +167,7 @@ export default function ServicesPage() {
 
           {services.map((service) => (
             <article className="service-card" key={service.id}>
-              {isAdmin && (
+              {isBarber && service.barberPhone === profile?.phone && (
                 <button
                   className="icon-btn"
                   style={{ position: 'absolute', top: '8px', right: '8px', color: '#757575' }}
@@ -177,7 +177,9 @@ export default function ServicesPage() {
                 </button>
               )}
 
-              <p className="service-name">{service.name}</p>
+              <p className="service-name">
+                {service.name} {service.barber?.name ? `(${service.barber.name})` : ''}
+              </p>
 
               <div className="service-meta-row">
                 <IconClock className="service-meta-icon icon-16" />
@@ -204,7 +206,7 @@ export default function ServicesPage() {
         </section>
       </section>
 
-      {isAdmin && (
+      {isBarber && (
         <button
           className="icon-btn"
           onClick={openCreateModal}

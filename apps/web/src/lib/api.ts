@@ -1,17 +1,25 @@
+import { getProfileSnapshot, UserProfile } from './profile';
+
 export interface Service {
   id: string;
   name: string;
   priceCents: number;
   durationMinutes: number;
   isActive: boolean;
+  barberPhone: string;
+  barber?: {
+    name: string;
+  };
 }
 
 export interface Schedule {
+  id: string;
   dayOfWeek: number;
   openTime: string;
   closeTime: string;
   lunchStart: string;
   lunchEnd: string;
+  barberPhone: string;
 }
 
 export interface ScheduleException {
@@ -22,6 +30,7 @@ export interface ScheduleException {
   closeTime: string;
   lunchStart: string;
   lunchEnd: string;
+  barberPhone: string;
 }
 
 export interface Meeting {
@@ -76,12 +85,14 @@ async function parseErrorMessage(response: Response) {
 }
 
 async function request<T>(path: string, init?: RequestConfig): Promise<T> {
+  const profile = getProfileSnapshot();
   const requestInit: RequestConfig = {
     ...init,
     cache: init?.cache ?? 'no-store',
     headers: {
       ...(init?.headers ?? {}),
       'Content-Type': 'application/json',
+      ...(profile ? { 'x-user-phone': profile.phone } : {}),
     },
   };
 
@@ -96,17 +107,15 @@ async function request<T>(path: string, init?: RequestConfig): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function fetchServices() {
-  return request<Service[]>('/services', {
-    cache: 'force-cache',
-    ...(typeof window === 'undefined'
-      ? {
-          next: {
-            revalidate: SERVICES_REVALIDATE_SECONDS,
-          },
-        }
-      : {}),
+export async function login(dto: { name: string; phone: string }) {
+  return request<UserProfile>('/users/login', {
+    method: 'POST',
+    body: JSON.stringify(dto),
   });
+}
+
+export async function fetchServices() {
+  return request<Service[]>('/services');
 }
 
 export async function updateService(id: string, dto: Partial<Service>) {
@@ -116,7 +125,7 @@ export async function updateService(id: string, dto: Partial<Service>) {
   });
 }
 
-export async function createService(dto: Omit<Service, 'id' | 'isActive'>) {
+export async function createService(dto: Omit<Service, 'id' | 'isActive' | 'barberPhone'>) {
   return request<Service>('/services', {
     method: 'POST',
     body: JSON.stringify(dto),
@@ -129,8 +138,9 @@ export async function deleteService(id: string) {
   });
 }
 
-export async function fetchAvailableTimes(date: string) {
-  return request<string[]>(`/schedules/${date}`);
+export async function fetchAvailableTimes(date: string, serviceId?: string) {
+  const query = serviceId ? `?serviceId=${serviceId}` : '';
+  return request<string[]>(`/schedules/${date}${query}`);
 }
 
 export async function createMeeting(payload: CreateMeetingPayload) {
@@ -169,7 +179,7 @@ export async function fetchExceptions() {
   return request<ScheduleException[]>('/schedules/exceptions');
 }
 
-export async function createException(dto: Omit<ScheduleException, 'id'>) {
+export async function createException(dto: Omit<ScheduleException, 'id' | 'barberPhone'>) {
   return request<ScheduleException>('/schedules/exceptions', {
     method: 'POST',
     body: JSON.stringify(dto),

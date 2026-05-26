@@ -1,7 +1,7 @@
 export interface UserProfile {
   name: string;
   phone: string;
-  isAdmin?: boolean;
+  role: 'BARBER' | 'CLIENT';
 }
 
 const PROFILE_KEY = 'barber.user-profile';
@@ -64,7 +64,7 @@ export function isValidPhone(phone: string) {
 }
 
 export function isValidProfile(profile: UserProfile) {
-  return isValidName(profile.name) && isValidPhone(profile.phone);
+  return isValidName(profile.name) && isValidPhone(profile.phone) && !!profile.role;
 }
 
 function parseProfileRaw(raw: string | null): UserProfile | null {
@@ -76,7 +76,7 @@ function parseProfileRaw(raw: string | null): UserProfile | null {
     return {
       name: profile.name.trim(),
       phone: normalizePhone(profile.phone),
-      isAdmin: profile.isAdmin,
+      role: profile.role,
     };
   } catch {
     return null;
@@ -121,23 +121,13 @@ function notifyProfileChanged() {
   window.dispatchEvent(new Event(PROFILE_EVENT));
 }
 
-function checkIsAdmin(name: string, phone: string) {
-  const adminName = process.env.NEXT_PUBLIC_ADMIN_NAME || 'admin';
-  const adminPhone = process.env.NEXT_PUBLIC_ADMIN_PHONE || '11111111111';
-
-  return (
-    name.toLowerCase() === adminName.toLowerCase() &&
-    normalizePhone(phone) === normalizePhone(adminPhone)
-  );
-}
-
 export function setProfile(profile: UserProfile) {
   if (typeof window === 'undefined') return;
 
   const normalized: UserProfile = {
     name: profile.name.trim(),
     phone: normalizePhone(profile.phone),
-    isAdmin: checkIsAdmin(profile.name, profile.phone),
+    role: profile.role,
   };
 
   const raw = JSON.stringify(normalized);

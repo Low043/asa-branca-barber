@@ -7,20 +7,31 @@ export class ServicesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getActives() {
-    return await this.prismaService.service.findMany({ where: { isActive: true } });
+    return await this.prismaService.service.findMany({
+      where: { isActive: true },
+      include: { barber: { select: { name: true } } },
+    });
   }
 
-  async create(dto: CreateServiceDto) {
-    return await this.prismaService.service.create({ data: dto });
+  async create(barberPhone: string, dto: CreateServiceDto) {
+    return await this.prismaService.service.create({
+      data: {
+        ...dto,
+        barberPhone,
+      },
+    });
   }
 
-  async update(id: string, dto: UpdateServiceDto) {
-    return await this.prismaService.service.update({ where: { id }, data: dto });
-  }
-
-  async delete(id: string) {
+  async update(id: string, barberPhone: string, dto: UpdateServiceDto) {
     return await this.prismaService.service.update({
-      where: { id },
+      where: { id, barberPhone },
+      data: dto,
+    });
+  }
+
+  async delete(id: string, barberPhone: string) {
+    return await this.prismaService.service.update({
+      where: { id, barberPhone },
       data: { isActive: false },
     });
   }

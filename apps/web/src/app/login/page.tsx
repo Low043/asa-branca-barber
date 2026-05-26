@@ -14,6 +14,7 @@ import {
   getProfileSnapshot,
   subscribeProfile,
 } from '@/lib/profile';
+import { login } from '@/lib/api';
 
 function LoginContent() {
   const router = useRouter();
@@ -64,23 +65,28 @@ function LoginContent() {
     return null;
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
 
-    const profile = {
+    const loginData = {
       name: name.trim(),
       phone: normalizePhone(phone),
     };
 
-    const loginError = getLoginError(profile.name, profile.phone);
+    const loginError = getLoginError(loginData.name, loginData.phone);
     if (loginError) {
       setError(loginError);
       return;
     }
 
-    setProfile(profile);
-    router.push(redirectPath);
+    try {
+      const profileResult = await login(loginData);
+      setProfile(profileResult);
+      router.push(redirectPath);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao realizar login.');
+    }
   }
 
   return (
