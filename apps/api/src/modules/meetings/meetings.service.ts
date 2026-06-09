@@ -3,10 +3,14 @@ import { PrismaService } from '@common/prisma/prisma.service';
 import { MeetingStatus } from '@generated/prisma/enums';
 import { CreateMeetingDto } from './dtos/meetings.dto';
 import { getLocalDateTime } from '../../utils/scheduleTime.util';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MeetingsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async getActives(barberPhone: string) {
     return await this.prismaService.meeting.findMany({
@@ -49,7 +53,19 @@ export class MeetingsService {
       skipDuplicates: true,
     });
 
-    return await this.prismaService.meeting.create({ data: dto });
+    const meeting = await this.prismaService.meeting.create({
+      data: dto,
+      include: { service: true },
+    });
+
+    // Notifica o barbeiro
+    void this.notificationsService.notifyBarber(
+      meeting.service.barberPhone,
+      'Novo Agendamento!',
+      `${meeting.clientName} agendou ${meeting.service.name} para ${meeting.date.toLocaleString('pt-BR')}`,
+    );
+
+    return meeting;
   }
 
   async delete(id: string, userPhone: string) {
@@ -66,9 +82,20 @@ export class MeetingsService {
       throw new ConflictException('Não autorizado a cancelar este agendamento');
     }
 
-    return await this.prismaService.meeting.update({
+    const cancelled = await this.prismaService.meeting.update({
       where: { id },
       data: { status: MeetingStatus.CANCELLED },
     });
+
+    // Se quem cancelou NÃO foi o próprio barbeiro, notifica o barbeiro
+    if (userPhone !== meeting.service.barberPhone) {
+      void this.notificationsService.notifyBarber(
+        meeting.service.barberPhone,
+        'Agendamento Cancelado',
+        `${meeting.clientName} cancelou o horário de ${meeting.date.toLocaleString('pt-BR')}`,
+      );
+    }
+
+    return cancelled;
   }
 }

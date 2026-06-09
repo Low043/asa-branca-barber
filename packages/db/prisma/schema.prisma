@@ -13,15 +13,27 @@ model User {
   phone String   @id @db.VarChar(16)
   role  UserRole @default(CLIENT)
 
-  meetings Meeting[]
-  services Service[]
-  schedules Schedule[]
+  meetings           Meeting[]
+  services           Service[]
+  schedules          Schedule[]
   scheduleExceptions ScheduleException[]
+  pushSubscriptions  PushSubscription[]
 }
 
 enum UserRole {
   BARBER
   CLIENT
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  userPhone String
+  user      User     @relation(fields: [userPhone], references: [phone])
 }
 
 model Service {

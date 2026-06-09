@@ -125,7 +125,9 @@ export async function updateService(id: string, dto: Partial<Service>) {
   });
 }
 
-export async function createService(dto: Omit<Service, 'id' | 'isActive' | 'barberPhone'>) {
+export async function createService(
+  dto: Omit<Service, 'id' | 'isActive' | 'barberPhone'>,
+) {
   return request<Service>('/services', {
     method: 'POST',
     body: JSON.stringify(dto),
@@ -179,7 +181,9 @@ export async function fetchExceptions() {
   return request<ScheduleException[]>('/schedules/exceptions');
 }
 
-export async function createException(dto: Omit<ScheduleException, 'id' | 'barberPhone'>) {
+export async function createException(
+  dto: Omit<ScheduleException, 'id' | 'barberPhone'>,
+) {
   return request<ScheduleException>('/schedules/exceptions', {
     method: 'POST',
     body: JSON.stringify(dto),
@@ -189,5 +193,12 @@ export async function createException(dto: Omit<ScheduleException, 'id' | 'barbe
 export async function deleteException(id: string) {
   return request<void>(`/schedules/exceptions/${id}`, {
     method: 'DELETE',
+  });
+}
+
+export async function subscribeNotifications(subscription: PushSubscription) {
+  return request<void>('/notifications/subscribe', {
+    method: 'POST',
+    body: JSON.stringify(subscription),
   });
 }

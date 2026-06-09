@@ -5,6 +5,7 @@ import { ServicesModule } from './modules/services/services.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
 import { MeetingsModule } from '@modules/meetings/meetings.module';
 import { UsersModule } from './modules/users/users.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UsersModule } from './modules/users/users.module';
     SchedulesModule,
     MeetingsModule,
     UsersModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],

@@ -1,0 +1,21 @@
+{
+  "name": "Asa Branca Barbearia",
+  "short_name": "Asa Branca",
+  "description": "Sistema de agendamento da Asa Branca Barbearia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#dedede",
+  "theme_color": "#ffb228",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
