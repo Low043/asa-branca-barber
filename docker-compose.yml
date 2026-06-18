@@ -2,7 +2,7 @@ services:
   db-dev:
     image: postgres:15
     container_name: barber-postgres-dev
-    restart: always
+    restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
