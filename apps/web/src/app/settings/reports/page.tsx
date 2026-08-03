@@ -8,7 +8,6 @@ import {
   IconCalendar,
   IconClock,
   IconTrash2,
-  IconX,
 } from '@/components/icons';
 import {
   cancelMeeting,
@@ -58,9 +57,7 @@ export default function ReportsPage() {
   const [completed, setCompleted] = useState<CompletedMeeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const [meetingToCancel, setMeetingToCancel] = useState<CompletedMeeting | null>(null);
-  const [cancelSubmitting, setCancelSubmitting] = useState(false);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (hydrated && !profile) {
@@ -117,28 +114,27 @@ export default function ReportsPage() {
     }
   }
 
-  async function confirmCancel() {
-    if (!meetingToCancel) return;
+  async function handleCancel(meeting: CompletedMeeting) {
+    if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
 
-    setCancelSubmitting(true);
+    setCancelingId(meeting.id);
     setError('');
     try {
-      await cancelMeeting(meetingToCancel.id);
-      setCompleted((prev) => prev.filter((m) => m.id !== meetingToCancel.id));
+      await cancelMeeting(meeting.id);
+      setCompleted((prev) => prev.filter((m) => m.id !== meeting.id));
       setReport((prev) =>
         prev
           ? {
               ...prev,
               clientsAttended: Math.max(0, prev.clientsAttended - 1),
-              balanceCents: Math.max(0, prev.balanceCents - meetingToCancel.priceCents),
+              balanceCents: Math.max(0, prev.balanceCents - meeting.priceCents),
             }
           : prev,
       );
-      setMeetingToCancel(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível cancelar.');
     } finally {
-      setCancelSubmitting(false);
+      setCancelingId(null);
     }
   }
 
@@ -284,10 +280,11 @@ export default function ReportsPage() {
                       <button
                         className="schedule-delete-chip"
                         type="button"
-                        onClick={() => setMeetingToCancel(meeting)}
+                        disabled={cancelingId === meeting.id}
+                        onClick={() => void handleCancel(meeting)}
                       >
                         <IconTrash2 />
-                        Cancelar
+                        {cancelingId === meeting.id ? 'Cancelando...' : 'Cancelar'}
                       </button>
                     </article>
                   );
@@ -297,52 +294,6 @@ export default function ReportsPage() {
           ) : null}
         </section>
       </section>
-
-      {meetingToCancel ? (
-        <div className="modal-overlay">
-          <article className="modal-card">
-            <div className="modal-title-row">
-              <h3 className="modal-title">Confirmar cancelamento?</h3>
-              <button
-                className="icon-btn"
-                type="button"
-                onClick={() => setMeetingToCancel(null)}
-              >
-                <IconX className="icon-20" />
-              </button>
-            </div>
-
-            {(() => {
-              const [dateLabel, timeLabel = ''] = formatMeetingDateTime(
-                meetingToCancel.date,
-              ).split(' às ');
-
-              return (
-                <>
-                  <p className="modal-service">{meetingToCancel.service.name}</p>
-                  <div className="modal-meta">
-                    <IconCalendar className="icon-16" />
-                    <span>{dateLabel}</span>
-                  </div>
-                  <div className="modal-meta">
-                    <IconClock className="icon-16" />
-                    <span>{timeLabel}</span>
-                  </div>
-                </>
-              );
-            })()}
-
-            <button
-              className="cancel-confirm-btn"
-              type="button"
-              onClick={() => void confirmCancel()}
-              disabled={cancelSubmitting}
-            >
-              {cancelSubmitting ? 'Cancelando...' : 'Confirmar cancelamento'}
-            </button>
-          </article>
-        </div>
-      ) : null}
     </main>
   );
 }

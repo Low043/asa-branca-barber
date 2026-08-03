@@ -524,6 +524,12 @@ svg {
   align-items: center;
   gap: 4px;
   justify-content: center;
+  cursor: pointer;
+}
+
+.schedule-delete-chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .schedule-delete-chip svg {
@@ -575,6 +581,12 @@ svg {
   color: #ffffff;
   font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-confirm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .cancel-btn {
