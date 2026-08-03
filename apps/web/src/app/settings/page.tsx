@@ -4,7 +4,14 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BottomNav } from '@/components/BottomNav';
-import { IconLogout, IconMapPin, IconClock, IconCalendar, IconSettings } from '@/components/icons';
+import {
+  IconLogout,
+  IconMapPin,
+  IconClock,
+  IconCalendar,
+  IconSettings,
+  IconScissors,
+} from '@/components/icons';
 import { clearProfile, getProfileSnapshot, subscribeProfile } from '@/lib/profile';
 import { subscribeNotifications } from '@/lib/api';
 
@@ -37,6 +44,7 @@ export default function SettingsPage() {
   }, [hydrated, profile, router]);
 
   const firstName = useMemo(() => profile?.name ?? '\u00A0', [profile?.name]);
+  const isThales = profile?.name?.toLowerCase() === 'thales';
 
   if (!profile) return null;
 
@@ -50,7 +58,7 @@ export default function SettingsPage() {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
         const registration = await navigator.serviceWorker.ready;
-        
+
         const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
         if (!publicKey) {
           console.error('VAPID Public Key not found');
@@ -103,10 +111,21 @@ export default function SettingsPage() {
 
         <section className="services-list">
           <h2 className="section-title">Configurações</h2>
-          
-          <Link href="/settings/schedules" className="service-card" style={{ textDecoration: 'none' }}>
+
+          <Link
+            href="/settings/schedules"
+            className="service-card"
+            style={{ textDecoration: 'none' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ background: '#ffb228', borderRadius: '8px', padding: '8px', color: '#ffffff' }}>
+              <div
+                style={{
+                  background: '#ffb228',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  color: '#ffffff',
+                }}
+              >
                 <IconClock className="icon-24" />
               </div>
               <div>
@@ -115,9 +134,20 @@ export default function SettingsPage() {
             </div>
           </Link>
 
-          <Link href="/settings/exceptions" className="service-card" style={{ textDecoration: 'none' }}>
+          <Link
+            href="/settings/exceptions"
+            className="service-card"
+            style={{ textDecoration: 'none' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ background: '#ffb228', borderRadius: '8px', padding: '8px', color: '#ffffff' }}>
+              <div
+                style={{
+                  background: '#ffb228',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  color: '#ffffff',
+                }}
+              >
                 <IconCalendar className="icon-24" />
               </div>
               <div>
@@ -126,14 +156,51 @@ export default function SettingsPage() {
             </div>
           </Link>
 
+          {isThales && (
+            <Link
+              href="/settings/barbers"
+              className="service-card"
+              style={{ textDecoration: 'none' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    background: '#ffb228',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    color: '#ffffff',
+                  }}
+                >
+                  <IconScissors className="icon-24" />
+                </div>
+                <div>
+                  <p className="service-name">Barbeiros</p>
+                </div>
+              </div>
+            </Link>
+          )}
+
           <button
             type="button"
             className="service-card"
-            style={{ textAlign: 'left', border: 'none', cursor: 'pointer', width: '100%', background: 'white' }}
+            style={{
+              textAlign: 'left',
+              border: 'none',
+              cursor: 'pointer',
+              width: '100%',
+              background: 'white',
+            }}
             onClick={requestNotificationPermission}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ background: '#ffb228', borderRadius: '8px', padding: '8px', color: '#ffffff' }}>
+              <div
+                style={{
+                  background: '#ffb228',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  color: '#ffffff',
+                }}
+              >
                 <IconSettings className="icon-24" />
               </div>
               <div>

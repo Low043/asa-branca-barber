@@ -202,3 +202,32 @@ export async function subscribeNotifications(subscription: PushSubscription) {
     body: JSON.stringify(subscription),
   });
 }
+
+export interface Barber {
+  name: string;
+  phone: string;
+}
+
+export async function fetchBarbers() {
+  return request<Barber[]>('/barbers');
+}
+
+export async function createBarber(dto: { name: string; phone: string }) {
+  return request<Barber>('/barbers', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function updateBarber(phone: string, dto: { name: string }) {
+  return request<Barber>(`/barbers/${encodeURIComponent(phone)}`, {
+    method: 'PUT',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function deleteBarber(phone: string) {
+  return request<void>(`/barbers/${encodeURIComponent(phone)}`, {
+    method: 'DELETE',
+  });
+}

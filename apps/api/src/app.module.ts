@@ -6,6 +6,7 @@ import { SchedulesModule } from './modules/schedules/schedules.module';
 import { MeetingsModule } from '@modules/meetings/meetings.module';
 import { UsersModule } from './modules/users/users.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { BarbersModule } from './modules/barbers/barbers.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     MeetingsModule,
     UsersModule,
     NotificationsModule,
+    BarbersModule,
   ],
   controllers: [],
   providers: [],
