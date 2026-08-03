@@ -1,4 +1,13 @@
-import { Controller, Body, Param, Get, Post, Delete, Headers } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Param,
+  Get,
+  Post,
+  Delete,
+  Headers,
+  Query,
+} from '@nestjs/common';
 import { MeetingsService } from './meetings.service';
 import { CreateMeetingDto } from './dtos/meetings.dto';
 
@@ -9,6 +18,17 @@ export class MeetingsController {
   @Get()
   async getMeetings(@Headers('x-user-phone') phone: string) {
     return await this.meetings.getActives(phone);
+  }
+
+  @Get('completed')
+  async getCompleted(
+    @Headers('x-user-phone') phone: string,
+    @Query('year') year: string,
+    @Query('month') month: string,
+  ) {
+    const y = year ? Number(year) : new Date().getFullYear();
+    const m = month ? Number(month) : new Date().getMonth();
+    return await this.meetings.getCompletedByBarber(phone, y, m);
   }
 
   @Get(':phone')

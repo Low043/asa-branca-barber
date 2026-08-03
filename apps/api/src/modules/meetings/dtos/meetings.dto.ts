@@ -9,10 +9,15 @@ const MeetingSchema = z.object({
   clientName: z.string(),
   userPhone: z.string(),
   serviceId: z.string(),
+  priceCents: z.int().positive(),
 }) satisfies z.ZodType<Meeting>;
 
 export class MeetingDto extends createZodDto(MeetingSchema) {}
 
-const CreateMeetingSchema = MeetingSchema.omit({ id: true, status: true });
+const CreateMeetingSchema = MeetingSchema.omit({
+  id: true,
+  status: true,
+  priceCents: true,
+});
 
 export class CreateMeetingDto extends createZodDto(CreateMeetingSchema) {}

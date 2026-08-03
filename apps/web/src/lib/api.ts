@@ -40,6 +40,16 @@ export interface Meeting {
   status: 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
   userPhone: string;
   serviceId: string;
+  priceCents: number;
+}
+
+export interface CompletedMeeting extends Omit<Meeting, 'serviceId'> {
+  service: {
+    id: string;
+    name: string;
+    priceCents: number;
+    barberPhone: string;
+  };
 }
 
 export interface CreateMeetingPayload {
@@ -160,6 +170,11 @@ export async function fetchAllMeetings() {
   return request<Meeting[]>('/meetings');
 }
 
+export async function fetchCompletedMeetings(year: number, month: number) {
+  const query = `?year=${year}&month=${month}`;
+  return request<CompletedMeeting[]>(`/meetings/completed${query}`);
+}
+
 export async function cancelMeeting(meetingId: string) {
   return request<Meeting>(`/meetings/${meetingId}`, {
     method: 'DELETE',
@@ -230,4 +245,16 @@ export async function deleteBarber(phone: string) {
   return request<void>(`/barbers/${encodeURIComponent(phone)}`, {
     method: 'DELETE',
   });
+}
+
+export interface MonthlyReport {
+  month: number;
+  year: number;
+  clientsAttended: number;
+  balanceCents: number;
+}
+
+export async function fetchMonthlyReport(year: number, month: number) {
+  const query = `?year=${year}&month=${month}`;
+  return request<MonthlyReport>(`/reports/monthly${query}`);
 }

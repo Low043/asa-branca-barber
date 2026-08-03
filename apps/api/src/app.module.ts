@@ -7,6 +7,7 @@ import { MeetingsModule } from '@modules/meetings/meetings.module';
 import { UsersModule } from './modules/users/users.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BarbersModule } from './modules/barbers/barbers.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BarbersModule } from './modules/barbers/barbers.module';
     UsersModule,
     NotificationsModule,
     BarbersModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],

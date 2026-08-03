@@ -54,6 +54,7 @@ model Meeting {
   date       DateTime
   clientName String
   status     MeetingStatus     @default(SCHEDULED)
+  priceCents Int
 
   user       User              @relation(fields: [userPhone], references: [phone])
   userPhone  String

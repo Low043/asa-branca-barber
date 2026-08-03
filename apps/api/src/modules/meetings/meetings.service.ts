@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@common/prisma/prisma.service';
 import { MeetingStatus } from '@generated/prisma/enums';
 import { CreateMeetingDto } from './dtos/meetings.dto';
@@ -34,7 +34,31 @@ export class MeetingsService {
     });
   }
 
+  async getCompletedByBarber(barberPhone: string, year: number, month: number) {
+    const start = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+    const end = new Date(Date.UTC(year, month + 1, 1, 0, 0, 0, 0));
+
+    return await this.prismaService.meeting.findMany({
+      where: {
+        status: MeetingStatus.COMPLETED,
+        date: { gte: start, lt: end },
+        service: { barberPhone },
+      },
+      orderBy: { date: 'desc' },
+      include: { service: true },
+    });
+  }
+
   async create(dto: CreateMeetingDto) {
+    const service = await this.prismaService.service.findUnique({
+      where: { id: dto.serviceId },
+      select: { id: true, name: true, priceCents: true, barberPhone: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Serviço não encontrado');
+    }
+
     const existingMeeting = await this.prismaService.meeting.findFirst({
       where: {
         date: dto.date,
@@ -54,7 +78,13 @@ export class MeetingsService {
     });
 
     const meeting = await this.prismaService.meeting.create({
-      data: dto,
+      data: {
+        date: dto.date,
+        clientName: dto.clientName,
+        userPhone: dto.userPhone,
+        serviceId: dto.serviceId,
+        priceCents: service.priceCents,
+      },
       include: { service: true },
     });
 
