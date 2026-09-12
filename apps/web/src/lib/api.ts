@@ -251,10 +251,79 @@ export interface MonthlyReport {
   month: number;
   year: number;
   clientsAttended: number;
+  servicesRevenueCents: number;
+  productsRevenueCents: number;
+  productsSold: number;
   balanceCents: number;
 }
 
 export async function fetchMonthlyReport(year: number, month: number) {
   const query = `?year=${year}&month=${month}`;
   return request<MonthlyReport>(`/reports/monthly${query}`);
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  priceCents: number;
+  quantity: number;
+  isActive: boolean;
+  barberPhone: string;
+}
+
+export interface ProductSale {
+  id: string;
+  date: string;
+  quantity: number;
+  priceCents: number;
+  productName: string;
+  productId: string;
+  barberPhone: string;
+}
+
+export async function fetchProducts() {
+  return request<Product[]>('/products');
+}
+
+export async function createProduct(
+  dto: Pick<Product, 'name' | 'priceCents' | 'quantity'>,
+) {
+  return request<Product>('/products', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function updateProduct(
+  id: string,
+  dto: Partial<Pick<Product, 'name' | 'priceCents' | 'quantity'>>,
+) {
+  return request<Product>(`/products/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function deleteProduct(id: string) {
+  return request<Product>(`/products/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function createSale(productId: string, dto: { quantity: number }) {
+  return request<ProductSale>(`/products/${productId}/sales`, {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function fetchSales(year: number, month: number) {
+  const query = `?year=${year}&month=${month}`;
+  return request<ProductSale[]>(`/products/sales${query}`);
+}
+
+export async function cancelSale(id: string) {
+  return request<void>(`/products/sales/${id}`, {
+    method: 'DELETE',
+  });
 }

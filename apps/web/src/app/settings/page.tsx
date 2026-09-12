@@ -12,6 +12,7 @@ import {
   IconSettings,
   IconScissors,
   IconList,
+  IconCreditCard,
 } from '@/components/icons';
 import { clearProfile, getProfileSnapshot, subscribeProfile } from '@/lib/profile';
 import { subscribeNotifications } from '@/lib/api';
@@ -175,6 +176,28 @@ export default function SettingsPage() {
               </div>
               <div>
                 <p className="service-name">Relatórios</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/settings/products"
+            className="service-card"
+            style={{ textDecoration: 'none' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div
+                style={{
+                  background: '#ffb228',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  color: '#ffffff',
+                }}
+              >
+                <IconCreditCard className="icon-24" />
+              </div>
+              <div>
+                <p className="service-name">Produtos</p>
               </div>
             </div>
           </Link>

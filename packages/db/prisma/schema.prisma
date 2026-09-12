@@ -18,6 +18,8 @@ model User {
   schedules          Schedule[]
   scheduleExceptions ScheduleException[]
   pushSubscriptions  PushSubscription[]
+  products           Product[]
+  productSales       ProductSale[]
 }
 
 enum UserRole {
@@ -67,6 +69,33 @@ enum MeetingStatus {
   SCHEDULED
   CANCELLED
   COMPLETED
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  name        String        @db.VarChar(32)
+  priceCents  Int
+  quantity    Int           @default(0)
+  isActive    Boolean       @default(true)
+
+  sales       ProductSale[]
+
+  barber      User          @relation(fields: [barberPhone], references: [phone])
+  barberPhone String
+}
+
+model ProductSale {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  quantity    Int
+  priceCents  Int // total da venda = preço unitário (snapshot) * quantity
+  productName String   @db.VarChar(32) // snapshot p/ histórico resistir a edição/remoção do produto
+
+  product     Product  @relation(fields: [productId], references: [id])
+  productId   String
+
+  barber      User          @relation(fields: [barberPhone], references: [phone])
+  barberPhone String
 }
 
 model Schedule {

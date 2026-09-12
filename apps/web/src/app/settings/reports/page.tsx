@@ -11,10 +11,13 @@ import {
 } from '@/components/icons';
 import {
   cancelMeeting,
+  cancelSale,
   CompletedMeeting,
   fetchCompletedMeetings,
   fetchMonthlyReport,
+  fetchSales,
   MonthlyReport,
+  ProductSale,
 } from '@/lib/api';
 import { formatMeetingDateTime } from '@/lib/date';
 import { getProfileSnapshot, subscribeProfile } from '@/lib/profile';
@@ -55,6 +58,7 @@ export default function ReportsPage() {
   const [month, setMonth] = useState(now.getMonth());
   const [report, setReport] = useState<MonthlyReport | null>(null);
   const [completed, setCompleted] = useState<CompletedMeeting[]>([]);
+  const [sales, setSales] = useState<ProductSale[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancelingId, setCancelingId] = useState<string | null>(null);
@@ -72,13 +76,15 @@ export default function ReportsPage() {
       setLoading(true);
       setError('');
       try {
-        const [reportData, completedData] = await Promise.all([
+        const [reportData, completedData, salesData] = await Promise.all([
           fetchMonthlyReport(year, month),
           fetchCompletedMeetings(year, month),
+          fetchSales(year, month),
         ]);
         if (!cancelled) {
           setReport(reportData);
           setCompleted(completedData);
+          setSales(salesData);
         }
       } catch (err) {
         if (!cancelled) {
@@ -128,6 +134,31 @@ export default function ReportsPage() {
               ...prev,
               clientsAttended: Math.max(0, prev.clientsAttended - 1),
               balanceCents: Math.max(0, prev.balanceCents - meeting.priceCents),
+            }
+          : prev,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível cancelar.');
+    } finally {
+      setCancelingId(null);
+    }
+  }
+
+  async function handleCancelSale(sale: ProductSale) {
+    if (!confirm('Tem certeza que deseja cancelar esta venda?')) return;
+
+    setCancelingId(sale.id);
+    setError('');
+    try {
+      await cancelSale(sale.id);
+      setSales((prev) => prev.filter((s) => s.id !== sale.id));
+      setReport((prev) =>
+        prev
+          ? {
+              ...prev,
+              productsSold: Math.max(0, prev.productsSold - sale.quantity),
+              productsRevenueCents: Math.max(0, prev.productsRevenueCents - sale.priceCents),
+              balanceCents: Math.max(0, prev.balanceCents - sale.priceCents),
             }
           : prev,
       );
@@ -190,7 +221,7 @@ export default function ReportsPage() {
                 className="calendar-card"
                 style={{ display: 'grid', gap: '4px', background: '#ffb228' }}
               >
-                <p style={{ margin: 0, fontSize: '13px', color: '#ffffff' }}>Saldo</p>
+                <p style={{ margin: 0, fontSize: '13px', color: '#ffffff' }}>Saldo total</p>
                 <p
                   style={{
                     margin: 0,
@@ -212,6 +243,29 @@ export default function ReportsPage() {
                 >
                   recebido no mês
                 </p>
+              </article>
+
+              <article className="calendar-card" style={{ display: 'grid', gap: '10px' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <span className="helper-text" style={{ fontSize: '14px' }}>
+                    Serviços
+                  </span>
+                  <span style={{ fontSize: '16px', fontWeight: 600, color: '#1e1e1e' }}>
+                    {formatBRL(report.servicesRevenueCents)}
+                  </span>
+                </div>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <span className="helper-text" style={{ fontSize: '14px' }}>
+                    Produtos
+                  </span>
+                  <span style={{ fontSize: '16px', fontWeight: 600, color: '#1e1e1e' }}>
+                    {formatBRL(report.productsRevenueCents)}
+                  </span>
+                </div>
               </article>
 
               <article className="calendar-card" style={{ display: 'grid', gap: '4px' }}>
@@ -285,6 +339,63 @@ export default function ReportsPage() {
                       >
                         <IconTrash2 />
                         {cancelingId === meeting.id ? 'Cancelando...' : 'Cancelar'}
+                      </button>
+                    </article>
+                  );
+                })
+              )}
+
+              <h2 className="section-title" style={{ marginTop: '16px' }}>
+                Vendas de produtos
+              </h2>
+
+              {sales.length === 0 ? (
+                <p
+                  className="helper-text"
+                  style={{ textAlign: 'center', marginTop: '16px' }}
+                >
+                  Nenhuma venda registrada neste mês.
+                </p>
+              ) : (
+                sales.map((sale) => {
+                  const [dateLabel, timeLabel = ''] = formatMeetingDateTime(
+                    sale.date,
+                  ).split(' às ');
+
+                  return (
+                    <article className="schedule-card" key={sale.id}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0px',
+                        }}
+                      >
+                        <p className="service-name">{sale.productName}</p>
+                        <p className="helper-text" style={{ fontSize: '14px' }}>
+                          {sale.quantity}x - {formatBRL(sale.priceCents)}
+                        </p>
+                      </div>
+
+                      <div className="schedule-date-time" style={{ marginTop: '8px' }}>
+                        <div className="schedule-meta-row">
+                          <IconCalendar className="schedule-meta-icon icon-16" />
+                          <span>{dateLabel}</span>
+                        </div>
+                        <div className="schedule-meta-row">
+                          <IconClock className="schedule-meta-icon icon-16" />
+                          <span>{timeLabel}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        className="schedule-delete-chip"
+                        type="button"
+                        disabled={cancelingId === sale.id}
+                        onClick={() => void handleCancelSale(sale)}
+                      >
+                        <IconTrash2 />
+                        {cancelingId === sale.id ? 'Cancelando...' : 'Cancelar'}
                       </button>
                     </article>
                   );

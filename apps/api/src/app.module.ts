@@ -9,6 +9,7 @@ import { UsersModule } from './modules/users/users.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BarbersModule } from './modules/barbers/barbers.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     NotificationsModule,
     BarbersModule,
     ReportsModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [],

@@ -30,20 +30,33 @@ export class ReportsService {
     const start = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
     const end = new Date(Date.UTC(year, month + 1, 1, 0, 0, 0, 0));
 
-    const meetings = await this.prismaService.meeting.findMany({
-      where: {
-        status: MeetingStatus.COMPLETED,
-        date: { gte: start, lt: end },
-        service: { barberPhone },
-      },
-      select: { priceCents: true },
-    });
+    const [meetings, sales] = await Promise.all([
+      this.prismaService.meeting.findMany({
+        where: {
+          status: MeetingStatus.COMPLETED,
+          date: { gte: start, lt: end },
+          service: { barberPhone },
+        },
+        select: { priceCents: true },
+      }),
+      this.prismaService.productSale.findMany({
+        where: { barberPhone, date: { gte: start, lt: end } },
+        select: { priceCents: true, quantity: true },
+      }),
+    ]);
+
+    const servicesRevenueCents = meetings.reduce((sum, m) => sum + m.priceCents, 0);
+    const productsRevenueCents = sales.reduce((sum, s) => sum + s.priceCents, 0);
+    const productsSold = sales.reduce((sum, s) => sum + s.quantity, 0);
 
     return {
       month,
       year,
       clientsAttended: meetings.length,
-      balanceCents: meetings.reduce((sum, m) => sum + m.priceCents, 0),
+      servicesRevenueCents,
+      productsRevenueCents,
+      productsSold,
+      balanceCents: servicesRevenueCents + productsRevenueCents,
     };
   }
 
